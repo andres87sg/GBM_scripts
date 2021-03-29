@@ -1,7 +1,7 @@
 % Pick random patches
 %%
 %esta es una prueba de Branch 2 sin ebmargo
-% Esta es una versión de Branch1Beta1
+% Esta es una versión de Branch1Beta1 -segunda parte
 % esto está interesante
 
 
