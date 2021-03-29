@@ -55,19 +55,19 @@ read_folder=dir(strcat(path_dir,'*.jpg'));
 % Tomo sólo el 30% de los parches de cada carpeta
 numpatches=round(size(read_folder,1)*0.10);
 
-for i=1:numpatches
-    
-    rng('shuffle')
-    randnum = randi([1 round(size(read_folder,1))],1);
-    file_name=read_folder(randnum).name;
-    
-    SourceFile=['C:\Users\Andres\Desktop\val7\',region,'\',file_name];
-    DestinyFile='C:\Users\Andres\Desktop\train8\CR2\';    
-    
-    copyfile(SourceFile, DestinyFile, 'f')
+    for i=1:numpatches
 
-end
+        rng('shuffle')
+        randnum = randi([1 round(size(read_folder,1))],1);
+        file_name=read_folder(randnum).name;
 
+        SourceFile=['C:\Users\Andres\Desktop\val7\',region,'\',file_name];
+        DestinyFile='C:\Users\Andres\Desktop\train8\CR2\';    
+
+        copyfile(SourceFile, DestinyFile, 'f')
+
+    end
+    
 disp("fin del proceso")
 
 end
