@@ -1,7 +1,11 @@
 % Pick random patches
 %%
 %esta es una prueba de Branch 2 sin ebmargo
+<<<<<<< Updated upstream
 %esta es ka version finakl
+=======
+%esta es ka version finakla
+>>>>>>> Stashed changes
 
 
 clc;
