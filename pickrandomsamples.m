@@ -1,6 +1,7 @@
 % Pick random patches
 %%
-%esta es una prueba de Branch 2
+%esta es una prueba de Branch 2 sin ebmargo
+%esta es ka version finakl
 
 
 clc;
