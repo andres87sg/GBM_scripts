@@ -1,13 +1,13 @@
 % Pick random patches
 %%
-%esta es una prueba de Branch1
+%esta es una prueba de Branch 2
 
 
 clc;
 clear;
 close all;
 
-for ind=3:3
+for ind=1:6
     switch ind
 
         case 1 % Leading Edge
