@@ -1,0 +1,20 @@
+clc; clear; close all;
+
+% Source = 'Source_small.png';
+Source = 'samp.png';
+img_src=imread(Source);
+ref=imread('Ref.png');
+
+disp('Stain Normalization using Macenko et al Method');
+
+verbose = 1;
+[NormMM ] = Macenko(img_src, ref, 255, 0.15, 1, verbose);
+
+%%
+
+
+stain_matrix = EstStainUsingMacenko( img_src );
+
+disp(['Color Deconvolution using Our Implementation with Standard ', ...
+    'Stain Matrix']);
+[ DCh, H, E, Bg ] = Deconvolve( img_src, stain_matrix', verbose );

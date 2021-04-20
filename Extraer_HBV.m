@@ -12,12 +12,13 @@ close all;
 
 %% Main 
 
-path_dir='C:\Users\Andres\Downloads\WSI\test\';
+path_dir='C:\Users\Andres\Downloads\WSI\validation\';
 
 read_folder=dir(strcat(path_dir,'*.jpg'));
 
 
 for num_case=1:size(read_folder,1) % Testing
+% for num_case=1:1 % Testing
 
     
     disp('***************');
@@ -28,20 +29,20 @@ for num_case=1:size(read_folder,1) % Testing
     file_name=file_name(1:size(file_name,2)-4);
     info_patches=croppatches(file_name,path_dir);
     
-    table_patches(num_case,:)=[file_name,info_patches(:,2)'];
+%     table_patches(num_case,:)=[file_name,info_patches(:,2)'];
 
-    Name = table_patches(:,1);
-    LE = table_patches(:,2);
-    IT = table_patches(:,3);
-    CT = table_patches(:,4);
-    NE = table_patches(:,5);
-    HB = table_patches(:,6);
-    PC = table_patches(:,7);
-    MV = table_patches(:,8);
+%     Name = table_patches(:,1);
+%     LE = table_patches(:,2);
+%     IT = table_patches(:,3);
+%     CT = table_patches(:,4);
+%     NE = table_patches(:,5);
+%     HB = table_patches(:,6);
+%     PC = table_patches(:,7);
+%     MV = table_patches(:,8);
     
-    info_paches=table(Name,LE,IT,CT,NE,HB,PC,MV);
+%     info_paches=table(Name,LE,IT,CT,NE,HB,PC,MV);
   
-    writetable(info_paches,'C:\Users\Andres\Desktop\test10\TablePatches3.xlsx','Sheet','test');
+%    writetable(info_paches,'C:\Users\Andres\Desktop\test10\TablePatches3.xlsx','Sheet','test');
 
 end
 
@@ -52,7 +53,7 @@ disp("The process has ended")
 function [info_patches]=croppatches(subblock_id,path_dir_wsi)
 
 
-path_dir_segmentation='C:\Users\Andres\Downloads\SG\test\';
+path_dir_segmentation='C:\Users\Andres\Downloads\SG\validation\';
 
 % wsi: Whole Slide Image || wsi_SG: Whole Slide Image Segmentation
 wsi=importdata([path_dir_wsi,subblock_id,'.jpg']);
@@ -65,7 +66,7 @@ scale=2;
 % scaled_wsi = imresize(wsi,1/scale);
 scaled_wsi_SG = imresize(wsi_SG,1/scale);
 
-for ind=1:7
+for ind=5:5
     
     coord=[];
 %     path_region=[];
@@ -110,8 +111,9 @@ for ind=1:7
             region = 'HB'; 
             HBr=double(scaled_wsi_SG(:,:,1)==255 & scaled_wsi_SG(:,:,2)==102);
             
-            stride=224;   
-            [~,coord] = crop_patches(HBr,scale,stride);
+            stride = 224;   
+            ws = 224*3;
+            [~,coord] = crop_patches(HBr,scale,stride,ws);
             
         case 6 % Pseudopalisading cells
 
@@ -143,15 +145,18 @@ for ind=1:7
             
     end
     
-     
+    wsi_SG_HB=double(wsi_SG(:,:,1)==255 & wsi_SG(:,:,2)==102); 
     %%%% Saving Patches
-    path_region = ['C:\Users\Andres\Desktop\test10\',region,'\'];
-    %save_patches(wsi,coord,scale,path_region,subblock_id,region) 
+    path_region = ['C:\Users\Andres\Desktop\segm\valid11\',region,'\'];
+    path_region_SG = ['C:\Users\Andres\Desktop\segm\valid11\',region,'_SG\'];
+        
+    save_patches(wsi,coord,ws,scale,path_region,subblock_id,region) 
+    save_patches_SG(wsi_SG_HB,coord,ws,scale,path_region_SG,subblock_id,region) 
     
     info_patches{ind,2}=size(coord,1);
     info_patches{ind,1}=region;
     
-    
+    %(wsi,coord,ws,scale,path,sub_block,region)
     clear coord path_region
     
 end
@@ -209,11 +214,11 @@ end
 
 %%
 
-function [maskcoord,coord] = crop_patches(mask,scale,stride)
+function [maskcoord,coord] = crop_patches(mask,scale,stride,ws)
 
 % OUT: [maskcoord: BW image , coord: patches coordinates]
 
-win_size=224/scale;
+win_size=ws/scale;
 stride_size=stride/scale;
 
 
@@ -238,7 +243,8 @@ coord=[];
             % Tissue Percentage
 
             % tenia esto en 95
-            if porcentaje>95
+%             if porcentaje>95
+            if porcentaje>10
                 index=index+1;
 
                 % Extracts patch coordinates
@@ -264,16 +270,35 @@ end
 
 %%
 
-function [] = save_patches(wsi,coord,scale,path,sub_block,region)
+function [] = save_patches(wsi,coord,ws,scale,path,sub_block,region)
 
-win_size = 224/scale;
+win_size = ws/scale;
+
+    for i=1:size(coord,1)
+
+        % Recuerde que _CT/_Ot depende de la carpeta
+        
+        addpath('matlab/myfiles')  
+        
+        patch=imcrop(wsi,[coord(i,2)*scale coord(i,1)*scale win_size*scale-1 win_size*scale-1]);
+        name=[sub_block,'_',num2str(i),'_',region,'.jpg']; %%%% CAMBIAR ESTO (OJO!!!)
+
+        imwrite(patch,strcat(path,name),'jpg');
+
+    end
+
+end
+
+function [] = save_patches_SG(wsi,coord,ws,scale,path,sub_block,region)
+
+win_size = ws/scale;
 
     for i=1:size(coord,1)
 
         % Recuerde que _CT/_Ot depende de la carpeta
 
         patch=imcrop(wsi,[coord(i,2)*scale coord(i,1)*scale win_size*scale-1 win_size*scale-1]);
-        name=[sub_block,'_',num2str(i),'_',region,'.jpg']; %%%% CAMBIAR ESTO (OJO!!!)
+        name=[sub_block,'_',num2str(i),'_',region,'_mask.jpg']; %%%% CAMBIAR ESTO (OJO!!!)
 
         imwrite(patch,strcat(path,name),'jpg');
 
