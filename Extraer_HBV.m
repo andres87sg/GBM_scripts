@@ -95,8 +95,9 @@ for ind=5:5
             region = 'CT';            
             CTr=double(scaled_wsi_SG(:,:,1)==5 & scaled_wsi_SG(:,:,2)==208);
             
-            stride=224;
-            [~,coord] = crop_patches(CTr,scale,stride);
+            stride = 224;   
+            ws = 224*3;
+            [~,coord] = crop_patches(CTr,scale,stride,ws);
 
         case 4 % Necrosis (NE)
 
