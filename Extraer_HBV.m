@@ -285,14 +285,11 @@ path_norm = [path(1:length(path)-1),'_norm\'];
 
         % Recuerde que _CT/_Ot depende de la carpeta
         
-        
-        
-        patch=imcrop(wsi,[coord(i,2)*scale coord(i,1)*scale win_size*scale-1 win_size*scale-1]);
+        patch=imcrop(wsi,[coord(i,2)*scale coord(i,1)*scale ...
+            win_size*scale-1 win_size*scale-1]);
         
         verbose = 0;
-        
-        
-        
+
         patch_norm = Macenko(patch, ref, 255, 0.15, 1, verbose);
         
         
