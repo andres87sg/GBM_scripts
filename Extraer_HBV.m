@@ -276,23 +276,27 @@ function [] = save_patches(wsi,coord,ws,scale,path,sub_block,region)
 win_size = ws/scale;
 
 mex ./stain_normalization_toolbox/colour_deconvolution.c;
+addpath('./stain_normalization_toolbox')  
+ref=imread('./stain_normalization_toolbox/ref2.jpg');
+
+path_norm = [path(1:length(path)-1),'_norm\'];
 
     for i=1:size(coord,1)
 
         % Recuerde que _CT/_Ot depende de la carpeta
         
-        addpath('./stain_normalization_toolbox')  
+        
         
         patch=imcrop(wsi,[coord(i,2)*scale coord(i,1)*scale win_size*scale-1 win_size*scale-1]);
         
         verbose = 0;
         
-        ref=imread('./stain_normalization_toolbox/ref2.jpg');
+        
         
         patch_norm = Macenko(patch, ref, 255, 0.15, 1, verbose);
         
         
-        [len,wid]=size(patch);
+        [len,wid,~]=size(patch);
         
         if (len==wid)
            
@@ -302,8 +306,8 @@ mex ./stain_normalization_toolbox/colour_deconvolution.c;
         
         name=[sub_block,'_',num2str(i),'_',region,'.jpg']; %%%% CAMBIAR ESTO (OJO!!!)
 
-        imwrite(patch,strcat(path,name),'jpg');
-            
+        imwrite(patch_resize,strcat(path,name),'jpg');
+        imwrite(patch_norm_resize,strcat(path_norm,name),'jpg');    
             
         end
         
