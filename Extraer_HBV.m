@@ -12,7 +12,7 @@ close all;
 
 %% Main 
 
-path_dir='C:\Users\Andres\Downloads\WSI\train\';
+path_dir='C:\Users\Andres\Downloads\WSI\validation\';
 
 read_folder=dir(strcat(path_dir,'*.jpg'));
 
@@ -29,20 +29,23 @@ for num_case=1:size(read_folder,1) % Testing
     file_name=file_name(1:size(file_name,2)-4);
     info_patches=croppatches(file_name,path_dir);
     
-%     table_patches(num_case,:)=[file_name,info_patches(:,2)'];
+    table_patches(num_case,:)=[file_name,info_patches(:,2)'];
 
-%     Name = table_patches(:,1);
+    Name = table_patches(:,1);
 %     LE = table_patches(:,2);
 %     IT = table_patches(:,3);
-%     CT = table_patches(:,4);
+      CT = table_patches(:,4);
 %     NE = table_patches(:,5);
-%     HB = table_patches(:,6);
+      HB = table_patches(:,6);
 %     PC = table_patches(:,7);
 %     MV = table_patches(:,8);
     
-%     info_paches=table(Name,LE,IT,CT,NE,HB,PC,MV);
+    num_paches_table=table(Name,CT,HB);
+%     num_paches_table=table(Name,CT);
+%     a=0;
+%     num_paches_table=table(Name,LE,IT,CT,NE,HB,PC,MV);
   
-%    writetable(info_paches,'C:\Users\Andres\Desktop\test10\TablePatches3.xlsx','Sheet','test');
+   writetable(num_paches_table,'C:\Users\Andres\Desktop\segm\TablePatches3.xlsx','Sheet','validation');
 
 end
 
@@ -53,7 +56,7 @@ disp("The process has ended")
 function [info_patches]=croppatches(subblock_id,path_dir_wsi)
 
 
-path_dir_segmentation='C:\Users\Andres\Downloads\SG\train\';
+path_dir_segmentation='C:\Users\Andres\Downloads\SG\validation\';
 
 % wsi: Whole Slide Image || wsi_SG: Whole Slide Image Segmentation
 wsi=importdata([path_dir_wsi,subblock_id,'.jpg']);
@@ -66,7 +69,9 @@ scale=2;
 % scaled_wsi = imresize(wsi,1/scale);
 scaled_wsi_SG = imresize(wsi_SG,1/scale);
 
-for ind=3:3
+% for ind=3:3
+for ind=[3,5]
+% for ind=3:3
     
     coord=[];
 %     path_region=[];
@@ -95,10 +100,10 @@ for ind=3:3
             region = 'CT';            
             CTr=double(scaled_wsi_SG(:,:,1)==5 & scaled_wsi_SG(:,:,2)==208);
             
-%             stride = 224*3; %Test / Valid  
-            stride = 224*3; %Train  
+            stride = 224*3; %Test / Valid  
+%             stride = 224*2; %Train  
             ws = 224*3;
-            [~,coord] = crop_patches(CTr,scale,stride,ws);
+            [~,coord] = crop_patches(CTr,scale,stride,ws,region);
 
         case 4 % Necrosis (NE)
 
@@ -112,10 +117,11 @@ for ind=3:3
 
             region = 'HB'; 
             HBr=double(scaled_wsi_SG(:,:,1)==255 & scaled_wsi_SG(:,:,2)==102);
-            
-            stride = 224;   
+                        
+%             stride = 224; %Train
+            stride = 224*3; % Valid / TEst
             ws = 224*3;
-            [~,coord] = crop_patches(HBr,scale,stride,ws);
+            [~,coord] = crop_patches(HBr,scale,stride,ws,region);
             
         case 6 % Pseudopalisading cells
 
@@ -149,11 +155,11 @@ for ind=3:3
     
     wsi_SG_HB=double(wsi_SG(:,:,1)==255 & wsi_SG(:,:,2)==102); 
     %%%% Saving Patches
-    path_region = ['C:\Users\Andres\Desktop\segm\train11\',region,'\'];
-    path_region_SG = ['C:\Users\Andres\Desktop\segm\train11\',region,'_SG\'];
+    path_region = ['C:\Users\Andres\Desktop\segm\valid11\',region,'\'];
+    path_region_SG = ['C:\Users\Andres\Desktop\segm\valid11\',region,'_SG\'];
         
-    save_patches(wsi,coord,ws,scale,path_region,subblock_id,region) 
-    save_patches_SG(wsi_SG_HB,coord,ws,scale,path_region_SG,subblock_id,region) 
+%     save_patches(wsi,coord,ws,scale,path_region,subblock_id,region) 
+%     save_patches_SG(wsi_SG_HB,coord,ws,scale,path_region_SG,subblock_id,region) 
     
     info_patches{ind,2}=size(coord,1);
     info_patches{ind,1}=region;
@@ -216,7 +222,7 @@ end
 
 %%
 
-function [maskcoord,coord] = crop_patches(mask,scale,stride,ws)
+function [maskcoord,coord] = crop_patches(mask,scale,stride,ws,region)
 
 % OUT: [maskcoord: BW image , coord: patches coordinates]
 
@@ -243,9 +249,17 @@ coord=[];
             porcentaje=(calc_area/(win_size*win_size))*100;
 
             % Tissue Percentage
+            switch region 
+                
+                case 'CT'
+                    porcentaje_region=90;
+                case 'HB'
+                    porcentaje_region=10;
+            end
+            
 
             % tenia esto en 95
-            if porcentaje>95
+            if porcentaje>porcentaje_region
 %             if porcentaje>10
                 index=index+1;
 
