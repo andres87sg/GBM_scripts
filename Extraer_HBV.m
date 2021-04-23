@@ -12,7 +12,7 @@ close all;
 
 %% Main 
 
-path_dir='C:\Users\Andres\Downloads\WSI\train\';
+path_dir='C:\Users\Andres\Downloads\WSI\test\';
 
 read_folder=dir(strcat(path_dir,'*.jpg'));
 
@@ -50,7 +50,7 @@ for num_case=1:size(read_folder,1) % Testing
 %     a=0;
 %     num_paches_table=table(Name,LE,IT,CT,NE,HB,PC,MV);
   
-   writetable(num_paches_table,'C:\Users\Andres\Desktop\segm\TablePatches3.xlsx','Sheet','validation');
+   writetable(num_paches_table,'C:\Users\Andres\Desktop\segm\TablePatches3.xlsx','Sheet','test2');
 
 end
 
@@ -61,7 +61,7 @@ disp("The process has ended")
 function [info_patches]=croppatches(subblock_id,path_dir_wsi)
 
 
-path_dir_segmentation='C:\Users\Andres\Downloads\SG\train\';
+path_dir_segmentation='C:\Users\Andres\Downloads\SG\test\';
 
 % wsi: Whole Slide Image || wsi_SG: Whole Slide Image Segmentation
 wsi=importdata([path_dir_wsi,subblock_id,'.jpg']);
@@ -105,8 +105,8 @@ for ind=[3,5]
             region = 'CT';            
             CTr=double(scaled_wsi_SG(:,:,1)==5 & scaled_wsi_SG(:,:,2)==208);
             
-%             stride = 224*3; %Test / Valid  
-            stride = 224*2; %Train  
+            stride = 224*3; %Test / Valid  
+%             stride = 224*2; %Train  
             ws = 224*3;
             [~,coord] = crop_patches(CTr,scale,stride,ws,region);
 
@@ -123,8 +123,8 @@ for ind=[3,5]
             region = 'HB'; 
             HBr=double(scaled_wsi_SG(:,:,1)==255 & scaled_wsi_SG(:,:,2)==102);
                         
-            stride = 224; %Train
-%             stride = 224*3; % Valid / TEst
+%             stride = 224; %Train
+            stride = 224*3; % Valid / TEst
             ws = 224*3;
             [~,coord] = crop_patches(HBr,scale,stride,ws,region);
             
@@ -160,8 +160,8 @@ for ind=[3,5]
     
     wsi_SG_HB=double(wsi_SG(:,:,1)==255 & wsi_SG(:,:,2)==102); 
     %%%% Saving Patches
-    path_region = ['C:\Users\Andres\Desktop\segm\train11\',region,'\'];
-    path_region_SG = ['C:\Users\Andres\Desktop\segm\train11\',region,'_SG\'];
+    path_region = ['C:\Users\Andres\Desktop\segm\test11\',region,'\'];
+    path_region_SG = ['C:\Users\Andres\Desktop\segm\test11\',region,'_SG\'];
         
     save_patches(wsi,coord,ws,scale,path_region,subblock_id,region) 
     save_patches_SG(wsi_SG_HB,coord,ws,scale,path_region_SG,subblock_id,region) 
