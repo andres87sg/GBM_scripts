@@ -12,7 +12,7 @@ close all;
 
 %% Main 
 
-path_dir='C:\Users\Andres\Downloads\WSI\test\';
+path_dir='C:\Users\Andres\Downloads\WSI\validation\';
 
 read_folder=dir(strcat(path_dir,'*.jpg'));
 
@@ -50,7 +50,7 @@ for num_case=1:size(read_folder,1) % Testing
 %     a=0;
 %     num_paches_table=table(Name,LE,IT,CT,NE,HB,PC,MV);
   
-   writetable(num_paches_table,'C:\Users\Andres\Desktop\segm\TablePatches3.xlsx','Sheet','test2');
+   writetable(num_paches_table,'C:\Users\Andres\Desktop\segm\TablePatches3.xlsx','Sheet','valid');
 
 end
 
@@ -61,7 +61,7 @@ disp("The process has ended")
 function [info_patches]=croppatches(subblock_id,path_dir_wsi)
 
 
-path_dir_segmentation='C:\Users\Andres\Downloads\SG\test\';
+path_dir_segmentation='C:\Users\Andres\Downloads\SG\validation\';
 
 % wsi: Whole Slide Image || wsi_SG: Whole Slide Image Segmentation
 wsi=importdata([path_dir_wsi,subblock_id,'.jpg']);
@@ -160,8 +160,8 @@ for ind=[3,5]
     
     wsi_SG_HB=double(wsi_SG(:,:,1)==255 & wsi_SG(:,:,2)==102); 
     %%%% Saving Patches
-    path_region = ['C:\Users\Andres\Desktop\segm\test11\',region,'\'];
-    path_region_SG = ['C:\Users\Andres\Desktop\segm\test11\',region,'_SG\'];
+    path_region = ['C:\Users\Andres\Desktop\segm\valid11\',region,'\'];
+    path_region_SG = ['C:\Users\Andres\Desktop\segm\valid11\',region,'_SG\'];
         
     save_patches(wsi,coord,ws,scale,path_region,subblock_id,region) 
     save_patches_SG(wsi_SG_HB,coord,ws,scale,path_region_SG,subblock_id,region) 
