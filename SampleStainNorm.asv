@@ -8,7 +8,7 @@ close all;
 path = '.\stain_normalization_toolbox\';
 
 addpath(path);
-mex .\stain_normalization_toolbox\colour_deconvolution.c;
+mex [path,'']'.\stain_normalization_toolbox\colour_deconvolution.c;
 
 %% Load input & reference image
 Source = 'sample100.jpg';
