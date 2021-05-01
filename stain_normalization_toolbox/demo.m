@@ -24,9 +24,9 @@ mex colour_deconvolution.c;
 %% Display results of each method
 verbose = 1;
 %% Load input & reference image
-Source = 'sample5.jpg';
+Source = 'sample100.jpg';
 img_src=imread(Source);
-ref=imread('Ref2.jpg');
+ref=imread('Ref3.jpg');
 
 %% Stain Normalization using RGB Histogram Specification Method
 
