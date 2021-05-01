@@ -1,1 +1,1 @@
-sample100.jpg
+SampleImg.jpg

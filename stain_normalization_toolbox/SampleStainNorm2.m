@@ -5,15 +5,17 @@ clc,
 clear, 
 close all;
 
-path = '.\stain_normalization_toolbox\';
 
 addpath(path);
-mex .\stain_normalization_toolbox\colour_deconvolution.c;
+mex colour_deconvolution.c;
 
-%% Load input & reference image
+
+%%
 Source = 'sample100.jpg';
-img_src=imread(Source);
-ref=imread('Ref3.jpg');
+ScrImg=imread(Source);
+
+
+
 
 
 if exist('normalised/', 'dir') == 7
@@ -29,12 +31,15 @@ dos(['ColourNormalisation.exe BimodalDeconvRVM filename.txt', ...
 % pause(4);
 NormDM = imread(['.\stain_normalization_toolbox\normalised\', Source]);
 
+imwrite(NormDM,'esto.jpg')
+
+
 figure, 
 subplot(1,3,1);
-imshow(img_src,[]);
+imshow(ScrImg,[]);
 title('Source');
 subplot(1,3,2);
-imshow(ref,[]);
+imshow(RefImg,[]);
 title('Reference');
 subplot(1,3,3);
 imshow(NormDM,[]);

@@ -24,7 +24,7 @@ mex colour_deconvolution.c;
 %% Display results of each method
 verbose = 1;
 %% Load input & reference image
-Source = 'sample100.jpg';
+Source = 'sample5.jpg';
 img_src=imread(Source);
 ref=imread('Ref3.jpg');
 
