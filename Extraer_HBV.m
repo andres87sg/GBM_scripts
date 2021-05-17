@@ -12,13 +12,13 @@ close all;
 
 %% Main 
 
-path_dir='C:\Users\Andres\Downloads\WSI\validation\';
+path_dir='C:\Users\Andres\Downloads\WSI\train\';
 
 read_folder=dir(strcat(path_dir,'*.jpg'));
 
 
-mex ./stain_normalization_toolbox/colour_deconvolution.c;
-addpath('./stain_normalization_toolbox')  
+% mex ./stain_normalization_toolbox/colour_deconvolution.c;
+% addpath('./stain_normalization_toolbox')  
 
 
 
@@ -50,7 +50,7 @@ for num_case=1:size(read_folder,1) % Testing
 %     a=0;
 %     num_paches_table=table(Name,LE,IT,CT,NE,HB,PC,MV);
   
-   writetable(num_paches_table,'C:\Users\Andres\Desktop\segm\TablePatches3.xlsx','Sheet','valid');
+   writetable(num_paches_table,'C:\Users\Andres\Desktop\TablePatches3.xlsx','Sheet','train');
 
 end
 
@@ -61,7 +61,7 @@ disp("The process has ended")
 function [info_patches]=croppatches(subblock_id,path_dir_wsi)
 
 
-path_dir_segmentation='C:\Users\Andres\Downloads\SG\validation\';
+path_dir_segmentation='C:\Users\Andres\Downloads\SG\train\';
 
 % wsi: Whole Slide Image || wsi_SG: Whole Slide Image Segmentation
 wsi=importdata([path_dir_wsi,subblock_id,'.jpg']);
@@ -75,6 +75,7 @@ scale=2;
 scaled_wsi_SG = imresize(wsi_SG,1/scale);
 
 % for ind=3:3
+% for ind=[3,5]
 for ind=[3,5]
 % for ind=3:3
     
@@ -105,9 +106,10 @@ for ind=[3,5]
             region = 'CT';            
             CTr=double(scaled_wsi_SG(:,:,1)==5 & scaled_wsi_SG(:,:,2)==208);
             
-            stride = 224*2; %Test / Valid  
-%             stride = 224*2; %Train  
-            ws = 224*3;
+            %stride = 224*2; %Test / Valid  
+            stride = 224*2; %Train  
+            ws = 224*2;
+            
             [~,coord] = crop_patches(CTr,scale,stride,ws,region);
 
         case 4 % Necrosis (NE)
@@ -123,9 +125,9 @@ for ind=[3,5]
             region = 'HB'; 
             HBr=double(scaled_wsi_SG(:,:,1)==255 & scaled_wsi_SG(:,:,2)==102);
                         
-%             stride = 224; %Train
-            stride = 224*3; % Valid / TEst
-            ws = 224*3;
+            stride = 224; %Train
+            %stride = 224*3; % Valid / TEst
+            ws = 224*2;
             [~,coord] = crop_patches(HBr,scale,stride,ws,region);
             
         case 6 % Pseudopalisading cells
@@ -158,13 +160,13 @@ for ind=[3,5]
             
     end
     
-    wsi_SG_HB=double(wsi_SG(:,:,1)==255 & wsi_SG(:,:,2)==102); 
+    %wsi_SG_HB=double(wsi_SG(:,:,1)==255 & wsi_SG(:,:,2)==102); 
     %%%% Saving Patches
     path_region = ['C:\Users\Andres\Desktop\segm\valid11\',region,'\'];
     path_region_SG = ['C:\Users\Andres\Desktop\segm\valid11\',region,'_SG\'];
         
-    save_patches(wsi,coord,ws,scale,path_region,subblock_id,region) 
-    save_patches_SG(wsi_SG_HB,coord,ws,scale,path_region_SG,subblock_id,region) 
+    %save_patches(wsi,coord,ws,scale,path_region,subblock_id,region) 
+    %save_patches_SG(wsi_SG_HB,coord,ws,scale,path_region_SG,subblock_id,region) 
     
     info_patches{ind,2}=size(coord,1);
     info_patches{ind,1}=region;
@@ -259,7 +261,7 @@ coord=[];
                 case 'CT'
                     porcentaje_region=90;
                 case 'HB'
-                    porcentaje_region=10;
+                    porcentaje_region=50;
             end
             
 
@@ -317,7 +319,7 @@ path_norm = [path(1:length(path)-1),'norm\'];
         
         if (len==wid)
            
-        patch_resize = imresize(patch,1/3);
+        patch_resize = imresize(patch,1/2);
         patch_norm_resize = imresize(patch_norm,1/3);
         
         
