@@ -12,17 +12,17 @@ mex colour_deconvolution.c;
 
 %% Load input & reference image
 
-path_dir='C:\Users\Andres\Desktop\PatchesGBM\train11\CT\';
+path_dir='C:\Users\Andres\Desktop\PatchesGBM\test11\CT\';
 
 read_folder=dir(strcat(path_dir,'*.jpg'));
 
-for i=3442:size(read_folder,1)
+for i=1:size(read_folder,1)
 % for i=1:10
 
     filename = read_folder(i).name;
     
-    im1=imread(['C:\Users\Andres\Desktop\PatchesGBM\train11\CT\',filename]);
-    dest_path = 'C:\Users\Andres\Desktop\PatchesGBM\train11\CTnorm2\';
+    im1=imread(['C:\Users\Andres\Desktop\PatchesGBM\test11\CT\',filename]);
+    dest_path = 'C:\Users\Andres\Desktop\PatchesGBM\test11\CTnorm4\';
     
     NormalizeSamples(im1,dest_path,filename)
 
@@ -57,8 +57,13 @@ fclose(fid);
 %     mkdir('normalised/');
 % end
 
+% dos(['ColourNormalisation.exe BimodalDeconvRVM filename.txt', ...
+%     ' Ref2.png HE.colourmodel']);
+
 dos(['ColourNormalisation.exe BimodalDeconvRVM filename.txt', ...
-    ' Ref2.png HE.colourmodel']);
+    ' Ref.png HE.colourmodel']);
+
+
 clc;
 % pause(4);
 NormDM = imread(['.\normalised\', Source]);

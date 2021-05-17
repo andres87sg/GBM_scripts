@@ -5,7 +5,7 @@
 % 
 % Nota: la imagen original está en im_in=imread(file_name);
 %%%%%%%%%%
-
+%asg
 clc;
 clear;
 close all;
