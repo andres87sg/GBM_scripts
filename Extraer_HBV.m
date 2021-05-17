@@ -105,7 +105,7 @@ for ind=[3,5]
             region = 'CT';            
             CTr=double(scaled_wsi_SG(:,:,1)==5 & scaled_wsi_SG(:,:,2)==208);
             
-            stride = 224*3; %Test / Valid  
+            stride = 224*2; %Test / Valid  
 %             stride = 224*2; %Train  
             ws = 224*3;
             [~,coord] = crop_patches(CTr,scale,stride,ws,region);
@@ -227,11 +227,11 @@ end
 
 %%
 
-function [maskcoord,coord] = crop_patches(mask,scale,stride,ws,region)
+function [maskcoord,coord] = crop_patches(mask,scale,stride,samplesize,region)
 
 % OUT: [maskcoord: BW image , coord: patches coordinates]
 
-win_size=ws/scale;
+win_size=samplesize/scale;
 stride_size=stride/scale;
 
 
@@ -297,7 +297,7 @@ win_size = ws/scale;
 
 % mex ./stain_normalization_toolbox/colour_deconvolution.c;
 % addpath('./stain_normalization_toolbox')  
-ref=imread('./stain_normalization_toolbox/ref2.jpg');
+% ref=imread('./stain_normalization_toolbox/ref2.jpg');
 
 path_norm = [path(1:length(path)-1),'norm\'];
 
@@ -306,11 +306,11 @@ path_norm = [path(1:length(path)-1),'norm\'];
         % Recuerde que _CT/_Ot depende de la carpeta
         
         patch=imcrop(wsi,[coord(i,2)*scale coord(i,1)*scale ...
-            win_size*scale-1 win_size*scale-1]);
+                            win_size*scale-1 win_size*scale-1]);
         
-        verbose = 0;
+        %verbose = 0;
 
-        patch_norm = Macenko(patch, ref, 255, 0.15, 1, verbose);
+        %patch_norm = Macenko(patch, ref, 255, 0.15, 1, verbose);
         
         
         [len,wid,~]=size(patch);
