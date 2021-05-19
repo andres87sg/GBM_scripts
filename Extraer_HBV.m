@@ -50,7 +50,7 @@ for num_case=1:size(read_folder,1) % Testing
 %     a=0;
 %     num_paches_table=table(Name,LE,IT,CT,NE,HB,PC,MV);
   
-   writetable(num_paches_table,'C:\Users\Andres\Desktop\TablePatches3.xlsx','Sheet','testA');
+   writetable(num_paches_table,'C:\Users\Andres\Desktop\TablePatches3.xlsx','Sheet','testB');
 
 end
 
@@ -109,7 +109,7 @@ for ind=[3,5]
             CTr=double(scaled_wsi_SG(:,:,1)==5 & scaled_wsi_SG(:,:,2)==208);
             
             stride = 224*2; %Test / Valid  
-%             stride = 224*2; %Train  
+%            stride = 224*2; %Train  
             ws = 224*2;
             
             [~,coord] = crop_patches(CTr,scale,stride,ws,region);
@@ -127,7 +127,7 @@ for ind=[3,5]
             region = 'HB'; 
             HBr=double(scaled_wsi_SG(:,:,1)==255 & scaled_wsi_SG(:,:,2)==102);
                         
-            %stride = 224/3; %Train
+%            stride = 224/2; %Train
             stride = 224*2; % Valid / TEst
             ws = 224*2;
             [~,coord] = crop_patches(HBr,scale,stride,ws,region);
@@ -164,8 +164,8 @@ for ind=[3,5]
     
     wsi_SG_HB=double(wsi_SG(:,:,1)==255 & wsi_SG(:,:,2)==102); 
     %%%% Saving Patches
-    path_region = ['C:\Users\Andres\Desktop\PatchesGBM\test14\',region,'\'];
-    path_region_SG = ['C:\Users\Andres\Desktop\PatchesGBM\test14\',region,'_SG\'];
+    path_region = ['C:\Users\Andres\Desktop\PatchesGBM\test15\',region,'\'];
+    path_region_SG = ['C:\Users\Andres\Desktop\PatchesGBM\test15\',region,'_SG\'];
         
     save_patches(wsi,coord,ws,scale,path_region,subblock_id,region) 
     save_patches_SG(wsi_SG_HB,coord,ws,scale,path_region_SG,subblock_id,region) 
@@ -320,16 +320,19 @@ win_size = ws/scale;
         [len,wid,~]=size(patch);
         
         if (len==wid)
-           
-        patch_resize = imresize(patch,1/2);
-        %patch_norm_resize = imresize(patch_norm,1/2);
         
+            if len==224*2
         
-        name=[sub_block,'_',num2str(i),'_',region,'.jpg']; %%%% CAMBIAR ESTO (OJO!!!)
+            patch_resize = imresize(patch,1/2);
+            %patch_norm_resize = imresize(patch_norm,1/2);
 
-        imwrite(patch_resize,strcat(path,name),'jpg');
-        %imwrite(patch_norm_resize,strcat(path_norm,name),'jpg');    
+
+            name=[sub_block,'_',num2str(i),'_',region,'.jpg']; %%%% CAMBIAR ESTO (OJO!!!)
+
+            imwrite(patch_resize,strcat(path,name),'jpg');
+            %imwrite(patch_norm_resize,strcat(path_norm,name),'jpg');    
             
+            end
         end
         
 
