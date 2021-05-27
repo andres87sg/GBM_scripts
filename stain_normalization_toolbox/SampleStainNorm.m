@@ -12,19 +12,25 @@ mex colour_deconvolution.c;
 
 %% Load input & reference image
 
-path_dir='C:\Users\Andres\Desktop\PatchesGBM\test11\CT\';
+path_dir='C:\Users\Andres\Desktop\PatchesGBM\test11\HB\';
 
 read_folder=dir(strcat(path_dir,'*.jpg'));
 
-for i=1:size(read_folder,1)
-% for i=1:10
+%for i=1:size(read_folder,1)
+ for i=1:50
 
     filename = read_folder(i).name;
     
-    im1=imread(['C:\Users\Andres\Desktop\PatchesGBM\test11\CT\',filename]);
-    dest_path = 'C:\Users\Andres\Desktop\PatchesGBM\test11\CTnorm4\';
+    im1=imread(['C:\Users\Andres\Desktop\PatchesGBM\test11\HB\',filename]);
+    [ ~, H, E, Bg, ~ ] = Deconvolve( im1, [], 0 );
+    figure();
+    imshow(E,[]);
+    a=0;
     
-    NormalizeSamples(im1,dest_path,filename)
+    
+    %dest_path = 'C:\Users\Andres\Desktop\PatchesGBM\test11\CTnorm4\';
+    
+    %NormalizeSamples(im1,dest_path,filename)
 
 end
 
