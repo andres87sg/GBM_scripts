@@ -164,7 +164,7 @@ for ind=[3,5]
     
     wsi_SG_HB=double(wsi_SG(:,:,1)==255 & wsi_SG(:,:,2)==102); 
     %%%% Saving Patches
-    path_region = ['/home/usuario/Documentos/GBM/Samples/',region,'/'];
+    path_region = ['/home/usuario/Documentos/GBM/Samples/train/',region,'/'];
     %path_region_SG = ['C:\Users\Andres\Desktop\PatchesGBM\train16\',region,'_SG\'];
         
     save_patches(wsi,coord,ws,scale,path_region,subblock_id,region) 
