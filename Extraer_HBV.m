@@ -12,10 +12,11 @@ close all;
 
 %% Main 
 
-path_dir='/home/usuario/Documentos/GBM/IvyGap/WSI/test/';
-path_dir_segmentation='/home/usuario/Documentos/GBM/IvyGap/SG/train/';
+main_path='/home/usuario/Documentos/GBM/IvyGap/'
+path_wsi=[main_path,'/WSI/train/'];
+path_segmentation=[main_path,'/SG/train/'];
 
-read_folder=dir(strcat(path_dir,'*.jpg'));
+read_folder=dir(strcat(path_wsi,'*.jpg'));
 
 % mex ./stain_normalization_toolbox/colour_deconvolution.c;
 % addpath('./stain_normalization_toolbox')  
@@ -31,7 +32,7 @@ for num_case=1:size(read_folder,1) % Testing
     
     file_name=read_folder(num_case).name; 
     file_name=file_name(1:size(file_name,2)-4);
-    info_patches=croppatches(file_name,path_dir,path_dir_segmentation);
+    info_patches=croppatches(file_name,path_wsi,path_segmentation);
     
     table_patches(num_case,:)=[file_name,info_patches(:,2)'];
 
@@ -160,7 +161,7 @@ for ind=[3,5]
     
     wsi_SG_HB=double(wsi_SG(:,:,1)==255 & wsi_SG(:,:,2)==102); 
     %%%% Saving Patches
-    path_region = ['/home/usuario/Documentos/GBM/Samples/test/',region,'/'];
+    path_region = ['/home/usuario/Documentos/GBM/Samples/samples_224x224/train/',region,'/'];
     %path_region_SG = ['C:\Users\Andres\Desktop\PatchesGBM\train16\',region,'_SG\'];
         
     save_patches(wsi,coord,ws,scale,path_region,subblock_id,region) 
