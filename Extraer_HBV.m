@@ -12,14 +12,12 @@ close all;
 
 %% Main 
 
-path_dir='/home/usuario/Documentos/GBM/IvyGap/WSI/train/';
+path_dir='/home/usuario/Documentos/GBM/IvyGap/WSI/test/';
 
 read_folder=dir(strcat(path_dir,'*.jpg'));
 
-a=0;
 % mex ./stain_normalization_toolbox/colour_deconvolution.c;
 % addpath('./stain_normalization_toolbox')  
-
 
 
 for num_case=1:size(read_folder,1) % Testing
@@ -50,7 +48,7 @@ for num_case=1:size(read_folder,1) % Testing
 %     a=0;
 %     num_paches_table=table(Name,LE,IT,CT,NE,HB,PC,MV);
   
-   writetable(num_paches_table,'/home/usuario/Documentos/GBM/TablePatches3.xlsx','Sheet','train');
+   writetable(num_paches_table,'/home/usuario/Documentos/GBM/TablePatches3.xlsx','Sheet','test');
 
 end
 
@@ -61,7 +59,7 @@ disp("The process has ended")
 function [info_patches]=croppatches(subblock_id,path_dir_wsi)
 
 
-path_dir_segmentation='/home/usuario/Documentos/GBM/IvyGap/SG/train/';
+path_dir_segmentation='/home/usuario/Documentos/GBM/IvyGap/SG/test/';
 
 % wsi: Whole Slide Image || wsi_SG: Whole Slide Image Segmentation
 
@@ -164,7 +162,7 @@ for ind=[3,5]
     
     wsi_SG_HB=double(wsi_SG(:,:,1)==255 & wsi_SG(:,:,2)==102); 
     %%%% Saving Patches
-    path_region = ['/home/usuario/Documentos/GBM/Samples/train/',region,'/'];
+    path_region = ['/home/usuario/Documentos/GBM/Samples/test/',region,'/'];
     %path_region_SG = ['C:\Users\Andres\Desktop\PatchesGBM\train16\',region,'_SG\'];
         
     save_patches(wsi,coord,ws,scale,path_region,subblock_id,region) 
