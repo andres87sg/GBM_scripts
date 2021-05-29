@@ -13,6 +13,7 @@ close all;
 %% Main 
 
 path_dir='/home/usuario/Documentos/GBM/IvyGap/WSI/test/';
+path_dir_segmentation='/home/usuario/Documentos/GBM/IvyGap/SG/train/';
 
 read_folder=dir(strcat(path_dir,'*.jpg'));
 
@@ -30,7 +31,7 @@ for num_case=1:size(read_folder,1) % Testing
     
     file_name=read_folder(num_case).name; 
     file_name=file_name(1:size(file_name,2)-4);
-    info_patches=croppatches(file_name,path_dir);
+    info_patches=croppatches(file_name,path_dir,path_dir_segmentation);
     
     table_patches(num_case,:)=[file_name,info_patches(:,2)'];
 
@@ -48,7 +49,7 @@ for num_case=1:size(read_folder,1) % Testing
 %     a=0;
 %     num_paches_table=table(Name,LE,IT,CT,NE,HB,PC,MV);
   
-   writetable(num_paches_table,'/home/usuario/Documentos/GBM/TablePatches3.xlsx','Sheet','test');
+   writetable(num_paches_table,'/home/usuario/Documentos/GBM/TablePatches3.xlsx','Sheet','train');
 
 end
 
@@ -56,13 +57,10 @@ disp("The process has ended")
 
 %% Function Crop patches
 
-function [info_patches]=croppatches(subblock_id,path_dir_wsi)
+function [info_patches]=croppatches(subblock_id,path_dir_wsi,path_dir_segmentation)
 
-
-path_dir_segmentation='/home/usuario/Documentos/GBM/IvyGap/SG/test/';
 
 % wsi: Whole Slide Image || wsi_SG: Whole Slide Image Segmentation
-
 
 wsi=importdata([path_dir_wsi,subblock_id,'.jpg']); %WSI 
 wsi_SG=importdata([path_dir_segmentation,'SG_',subblock_id,'.jpg']);
@@ -106,8 +104,8 @@ for ind=[3,5]
             region = 'CT';            
             CTr=double(scaled_wsi_SG(:,:,1)==5 & scaled_wsi_SG(:,:,2)==208);
             
-            %stride = 224*2; %Test / Valid  
-            stride = 224*2; %Train  
+            %stride = 224; %Test / Valid  
+            stride = 224*3; %Train  
             ws = 224;
             
             [~,coord] = crop_patches(CTr,scale,stride,ws,region);
@@ -126,7 +124,7 @@ for ind=[3,5]
             HBr=double(scaled_wsi_SG(:,:,1)==255 & scaled_wsi_SG(:,:,2)==102);
                         
             stride = round(224*3/4); %Train
-%            stride = 224*2; % Valid / TEst
+%            stride = 224; % Valid / TEst
             ws = 224;
             [~,coord] = crop_patches(HBr,scale,stride,ws,region);
             
