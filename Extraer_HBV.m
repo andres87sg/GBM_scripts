@@ -13,8 +13,8 @@ close all;
 %% Main 
 
 main_path='/home/usuario/Documentos/GBM/IvyGap/'
-path_wsi=[main_path,'/WSI/train/'];
-path_segmentation=[main_path,'/SG/train/'];
+path_wsi=[main_path,'/WSI/test/'];
+path_segmentation=[main_path,'/SG/test/'];
 
 read_folder=dir(strcat(path_wsi,'*.jpg'));
 
@@ -50,7 +50,7 @@ for num_case=1:size(read_folder,1) % Testing
 %     a=0;
 %     num_paches_table=table(Name,LE,IT,CT,NE,HB,PC,MV);
   
-   writetable(num_paches_table,'/home/usuario/Documentos/GBM/TablePatches3.xlsx','Sheet','train');
+   writetable(num_paches_table,'/home/usuario/Documentos/GBM/TablePatches3.xlsx','Sheet','test');
 
 end
 
@@ -105,8 +105,8 @@ for ind=[3,5]
             region = 'CT';            
             CTr=double(scaled_wsi_SG(:,:,1)==5 & scaled_wsi_SG(:,:,2)==208);
             
-            %stride = 224; %Test / Valid  
-            stride = 224*3; %Train  
+            stride = 224; %Test / Valid  
+            %stride = 224*3; %Train  
             ws = 224;
             
             [~,coord] = crop_patches(CTr,scale,stride,ws,region);
@@ -124,8 +124,8 @@ for ind=[3,5]
             region = 'HB'; 
             HBr=double(scaled_wsi_SG(:,:,1)==255 & scaled_wsi_SG(:,:,2)==102);
                         
-            stride = round(224*3/4); %Train
-%            stride = 224; % Valid / TEst
+            %stride = round(224*3/4); %Train
+            stride = 224; % Valid / TEst
             ws = 224;
             [~,coord] = crop_patches(HBr,scale,stride,ws,region);
             
@@ -161,7 +161,7 @@ for ind=[3,5]
     
     wsi_SG_HB=double(wsi_SG(:,:,1)==255 & wsi_SG(:,:,2)==102); 
     %%%% Saving Patches
-    path_region = ['/home/usuario/Documentos/GBM/Samples/samples_224x224/train/',region,'/'];
+    path_region = ['/home/usuario/Documentos/GBM/Samples/samples_224x224/test/',region,'/'];
     %path_region_SG = ['C:\Users\Andres\Desktop\PatchesGBM\train16\',region,'_SG\'];
         
     save_patches(wsi,coord,ws,scale,path_region,subblock_id,region) 
