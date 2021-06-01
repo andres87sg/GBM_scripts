@@ -10,7 +10,7 @@ addpath('./deconvolve/')
 ImRef= importdata('./Sample/ref_CT2.jpg');
 ImRef = imresize(ImRef,[224 224]);
 
-%[ ~, H, E, Bg, ~ ] = Deconvolve( ImRef, [], 0 );
+[ ~, H, E, Bg, ~ ] = Deconvolve( ImRef, [], 0 );
 
 
 for dir=1:6
@@ -34,28 +34,28 @@ for dir=1:6
         case 3
             
             path='/home/usuario/Documentos/GBM/Samples/samples_224x224/val/CT/';
-            destpath='/home/usuario/Documentos/GBM/Samples/samples_224x224_stain/val/CT/';
+            destpath='C:\Users\Andres\Desktop\SetHBCT448x448_Stain\val\CT\';
             FastStainFunction(path,destpath,ImRef)
             disp('Fin valid CT')
 
         case 4
             
             path='/home/usuario/Documentos/GBM/Samples/samples_224x224/val/HB/';
-            destpath='/home/usuario/Documentos/GBM/Samples/samples_224x224_stain/val/HB/';
+            destpath='C:\Users\Andres\Desktop\SetHBCT448x448_Stain\val\HB\';
             FastStainFunction(path,destpath,ImRef)
             disp('Fin valid HB')
             
         case 5
             
             path='/home/usuario/Documentos/GBM/Samples/samples_224x224/test/CT/';
-            destpath='/home/usuario/Documentos/GBM/Samples/samples_224x224_stain/test/CT/';
+            destpath='C:\Users\Andres\Desktop\SetHBCT448x448_Stain\test\CT\';
             FastStainFunction(path,destpath,ImRef)
             disp('Fin test CT')
         
         case 6
             
             path='/home/usuario/Documentos/GBM/Samples/samples_224x224/test/HB/';
-            destpath='/home/usuario/Documentos/GBM/Samples/samples_224x224_stain/test/HB/';
+            destpath='C:\Users\Andres\Desktop\SetHBCT448x448_Stain\test\HB\';
             FastStainFunction(path,destpath,ImRef)
             disp('Fin test CT')
 
