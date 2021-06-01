@@ -3,11 +3,14 @@ clc;
 clear;
 close all;
 
-addpath('.\Sample\')
+addpath('./Sample/')
+addpath('./deconvolve/')
 
 % Reference Image
-ImRef= importdata('.\Sample\ref_CT.jpg');
+ImRef= importdata('./Sample/ref_CT.jpg');
 ImRef = imresize(ImRef,[224 224]);
+
+[ ~, H, E, Bg, ~ ] = Deconvolve( ImRef, [], 0 );
 
 
 for dir=1:6
