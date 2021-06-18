@@ -43,8 +43,8 @@ for ind in tqdm(range(len(listfiles))):
     WSI = Image.open(WSI_path + filename)
     WSI_SG = Image.open(WSISG_path + 'SG_' + filename)
     
-    patchsize=896
-    stride=896
+    patchsize=448
+    stride=448
     scale=4
     th=0.51
     
