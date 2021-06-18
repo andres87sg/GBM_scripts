@@ -43,8 +43,8 @@ for ind in tqdm(range(len(listfiles))):
     WSI = Image.open(WSI_path + filename)
     WSI_SG = Image.open(WSISG_path + 'SG_' + filename)
     
-    patchsize=448
-    stride=448
+    patchsize=896
+    stride=896
     scale=4
     th=0.51
     
@@ -58,8 +58,8 @@ for ind in tqdm(range(len(listfiles))):
                                   scale,
                                   th)
     
-    destpath='C:/Users/Andres/Desktop/destino3/'
+    destpath='C:/Users/Andres/Desktop/destino5/'
     savepatches(WSI,patchsize,filename,coord_grtr,destpath)
     
-    destpath2='C:/Users/Andres/Desktop/destino4/'
+    destpath2='C:/Users/Andres/Desktop/destino6/'
     savepatches(WSI_SG,patchsize,filename,coord_grtr,destpath2)
