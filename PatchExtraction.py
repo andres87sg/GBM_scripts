@@ -22,8 +22,8 @@ from PatchExtractionUtils import scaled_wsi, wsiregion, grtrpixelmask, savepatch
 
 mainpath = '/Users/Andres/Downloads/'
 
-WSI_path = mainpath+'WSI/train/'
-WSISG_path= mainpath +'SG/train/'
+WSI_path = mainpath+'WSI/validation/'
+WSISG_path= mainpath +'SG/validation/'
 
 listfiles = os.listdir(WSI_path)
 
@@ -43,8 +43,8 @@ for ind in tqdm(range(len(listfiles))):
     WSI = Image.open(WSI_path + filename)
     WSI_SG = Image.open(WSISG_path + 'SG_' + filename)
     
-    patchsize=896
-    stride=896
+    patchsize=448
+    stride=448
     scale=4
     th=0.51
     
@@ -58,8 +58,8 @@ for ind in tqdm(range(len(listfiles))):
                                   scale,
                                   th)
     
-    destpath='C:/Users/Andres/Desktop/destino5/'
+    destpath='C:/Users/Andres/Desktop/destino3/'
     savepatches(WSI,patchsize,filename,coord_grtr,destpath)
     
-    destpath2='C:/Users/Andres/Desktop/destino6/'
+    destpath2='C:/Users/Andres/Desktop/destino4/'
     savepatches(WSI_SG,patchsize,filename,coord_grtr,destpath2)
