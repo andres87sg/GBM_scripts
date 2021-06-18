@@ -11,7 +11,7 @@ addpath(path);
 mex .\Deconvolve\colour_deconvolution.c;
 
 
-for dir=2:2
+for dir=1:6
 
     switch dir 
 
@@ -32,29 +32,29 @@ for dir=2:2
         case 3
             
             path='C:\Users\Andres\Desktop\PatchesGBM\SetHBCT448x448\val\CT\';
-            destpath='C:\Users\Andres\Desktop\SetHBCT448x448_Stain\val\CT\';
-            FastDeconvolution(path,destpath,ImRef)
+            destpath='C:\Users\Andres\Desktop\PatchesGBM\SetHBCT448x448_Deco\val\CT\';
+            FastDeconvolution(path,destpath)
             disp('Fin valid CT')
 
         case 4
             
             path='C:\Users\Andres\Desktop\PatchesGBM\SetHBCT448x448\val\HB\';
-            destpath='C:\Users\Andres\Desktop\SetHBCT448x448_Stain\val\HB\';
-            FastDeconvolution(path,destpath,ImRef)
+            destpath='C:\Users\Andres\Desktop\PatchesGBM\SetHBCT448x448_Deco\val\HB\';
+            FastDeconvolution(path,destpath)
             disp('Fin valid HB')
             
         case 5
             
             path='C:\Users\Andres\Desktop\PatchesGBM\SetHBCT448x448\test\CT\';
-            destpath='C:\Users\Andres\Desktop\SetHBCT448x448_Stain\test\CT\';
-            FastDeconvolution(path,destpath,ImRef)
+            destpath='C:\Users\Andres\Desktop\PatchesGBM\SetHBCT448x448_Deco\test\CT\';
+            FastDeconvolution(path,destpath)
             disp('Fin test CT')
         
         case 6
             
             path='C:\Users\Andres\Desktop\PatchesGBM\SetHBCT448x448\test\HB\';
-            destpath='C:\Users\Andres\Desktop\SetHBCT448x448_Stain\test\HB\';
-            FastDeconvolution(path,destpath,ImRef)
+            destpath='C:\Users\Andres\Desktop\PatchesGBM\SetHBCT448x448_Deco\test\HB\';
+            FastDeconvolution(path,destpath)
             disp('Fin test CT')
 
 

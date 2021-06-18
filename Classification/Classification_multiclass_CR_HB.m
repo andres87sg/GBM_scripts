@@ -10,18 +10,22 @@ clear;
 close all;
 %% Load classification model
 
-modelfile = 'C:\Users\Andres\Desktop\Model_HB_CT_May19_448x448_v2Exp8s.h5';
+% model = importKerasNetwork(modelfile);
+
+
+%%
+modelfile = 'C:\Users\Andres\Desktop\GBM_Project\Experiments\CNN_Models\Model_HB_CT_May19_448x448_v2Exp8.h5';
 % modelfile = 'C:\Users\Andres\Desktop\GBM_Project\Experiments\CNN_Models\best_modelExp6_23102020.h5';
-% model = importKerasNetwork(modelfile,'OutputLayerType','classification','Classes',{'0','1'});
 model = importKerasNetwork(modelfile,'OutputLayerType','classification','Classes',{'0','1'});
+%model = importKerasNetwork(modelfile,'ImportWeights',true,'OutputLayerType','classification','Classes',{'0','1'});
 % model = importKerasNetwork(modelfile,'OutputLayerType','classification');
 
 %%
 path='C:\Users\Andres\Downloads\WSI\test\';
 
 % wsi: Whole Slide Image
-wsi=importdata('C:\Users\Andres\Downloads\WSI\test\W53-1-1-E.01.jpg');
-wsi_SG=importdata('C:\Users\Andres\Desktop\GBM_Project\Experiments\new_W53-1-1-E.01.png');
+wsi=importdata('C:\Users\Andres\Downloads\WSI\test\W53-1-1-E.02.jpg');
+wsi_SG=importdata('C:\Users\Andres\Desktop\GBM_Project\Experiments\new_W53-1-1-E.02.png');
 
 % Scale factor
 scale=4; 
@@ -83,6 +87,7 @@ classif_list=[];
 predicted_list=[];
 
 win_size=224*2/scale;
+%win_size=224/scale;
 
 %mex ./GBM_scripts/stain_normalization_toolbox/colour_deconvolution.c;
 %addpath('./GBM_scripts/stain_normalization_toolbox')  
@@ -98,17 +103,17 @@ for i=1:size(coord,1)
     verbose = 0;
 
     %patch_norm = Macenko(patch, ref, 255, 0.15, 1, verbose);
-    patch_res = imresize(patch,1/2);
+    %patch_res = imresize(patch,1/1);
     
-    patch_norm = faststain(patch_res,ref);
-    %patch_norm = patch_res;
+    %patch_norm = faststain(patch_res,ref);
+    patch_norm = patch;
     %     patch_norm = patch_res;
     %[len,wid,~]=size(patch);
     
     %tissue=double(patch_norm(:,:,:))./255;
 %     tissue=double(patch(:,:,:))./255;
     tissue_norm = double(patch_norm)./255;
-%     tissue_norm = imresize(tissue,1/3);
+    tissue_norm = imresize(tissue_norm,1/2);
     
     label = classify(model,tissue_norm);
     predictresults = predict(model,tissue_norm);
@@ -157,10 +162,16 @@ blue = [0 0 1];
 
 orange = [1 0.64 0];
 % red = [1 0 0];
+bw_mask2=double(scaled_wsi_SG(:,:,1)>=50);
+kk=~bw_mask.*bw_mask2;
+kk1=kk*3;
 
+im1=classif_mask+kk1;
+zz2=(im1<4).*im1;
 
+%%
 %fuse_grtruth_mask=labeloverlay(scaled_wsi,double(grtruth_mask),'Colormap',[black;green],'Transparency',0.4);
-fuse_classif_mask=labeloverlay(scaled_wsi,double(classif_mask),'Colormap',[orange;green],'Transparency',0.5);
+fuse_classif_mask=labeloverlay(scaled_wsi,double(zz2),'Colormap',[orange;green;black],'Transparency',0.5);
 % fuse_classif_mask=labeloverlay(scaled_wsi,double(classif_mask2),'Colormap','autumn','Transparency',0.4);
 
 figure(1), 
@@ -299,7 +310,7 @@ end
 
 function [maskcoord,mini,coord] = grountruthmap(mask,scale)
 
-    win_size=224*2/scale;
+    win_size=224/scale;
 
 
     cols=floor(size(mask,1)/win_size);
@@ -409,4 +420,7 @@ end
 
     end
 
+function ImOut=faststaindeconv(ImIn)
+    [ ~, ImOut, ~, ~, ~ ] = Deconvolve( ImIn, [], 0 );
 
+end

@@ -10,7 +10,7 @@ clear;
 close all;
 %% Load classification model
 
-modelfile = 'C:\Users\Andres\Desktop\Model_CRvsNE.h5';
+modelfile = 'C:\Users\Andres\Desktop\GBM_Project\Experiments\CNN_Models\Model_CRvsNE.h5';
 % modelfile = 'C:\Users\Andres\Desktop\GBM_Project\Experiments\CNN_Models\best_modelExp6_23102020.h5';
 model = importKerasNetwork(modelfile,'OutputLayerType','classification','Classes',{'0','1'});
 % model = importKerasNetwork(modelfile,'OutputLayerType','classification');
