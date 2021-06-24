@@ -79,7 +79,7 @@ def grtrpixelmask(img,patchsize,stride,scale,th):
     return grtr_mask_pix, coord_grtr
 
 
-def savepatches(WSI,patchsize,filename,coord_grtr,destpath):
+def savepatches(WSI,patchsize,filename,region,coord_grtr,destpath):
     coord_array=np.array(coord_grtr)
 
     for i in range(len(coord_array)):
@@ -94,55 +94,16 @@ def savepatches(WSI,patchsize,filename,coord_grtr,destpath):
         WSIpatch_array=np.array(WSIpatch)
         
         
-        patchname = filename[:-4]+'_'+ str(i).zfill(4) + '.jpg'
+        patchname = filename[:-4]+'_'+ str(i).zfill(4) + '_'+ region +'.jpg'
         #destpath = 'C:/Users/Andres/Desktop/destino/'
     
-        WSIpatch.save(destpath + patchname)
+        WSIpatch.save(destpath + patchname,format='')
     
-    
-    
-    
-    
-    # coord_grtr=[]
-    # coord_grtr_pix=[]
+    numpatches=len(coord_array)
 
-    # #ws = patchsize//scale # Scaled window size
-    # patchsize=patchsize//scale
-    # stride=(patchsize//scale)*(1/2)
-    # ws=patchsize
-    
-    # print('stride: '+str(stride))
-    
-    # col = int(np.shape(img)[1]//stride)
-    # row = int(np.shape(img)[0]//patchsize)
-    # print('col '+str(col))
-    # print('row '+str(row))
-    
-    # grtr_mask_pix=np.zeros((row,col))
-    
-    # area_th=ws**2*th
-    # #mask=grtr_mask==1
-    
-    # coord=[]
-    # k=0
-    # for col_ind in range(int(col)):
-    #     for row_ind in range(int(row)):
-        
-    #         patch_bw = img[ws*row_ind:ws*row_ind+ws,
-    #                        (ws//2)*col_ind:ws*col_ind+ws]   
-            
-    #         patch_area=int(np.sum(patch_bw))
-            
-    #         if patch_area>int(area_th):
+    return numpatches
 
-    #             grtr_mask_pix[row_ind][col_ind]=1
-    #             coord_grtr.append([row_ind*ws*scale,col_ind*ws*scale])
-    #             coord_grtr_pix.append([row_ind,col_ind])
-                
     
-                
-    # return grtr_mask_pix, coord_grtr
-
 def pixtomask(imgpix,CTr,ws):
     
     resizedpiximg=np.zeros((np.shape(CTr)))

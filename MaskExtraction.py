@@ -18,28 +18,40 @@ Image.MAX_IMAGE_PIXELS = None
 
 from PatchExtractionUtils import scaled_wsi, wsiregion, grtrpixelmask, savepatches
 
+#%%
 
-mainpath = '/Users/Andres/Downloads/'
+mainpath = '/Users/Andres/Desktop/HB_Unet/896x896/train/SG/'
 
-WSI_path = mainpath+'WSI/test/'
-WSISG_path= mainpath +'SG/test/'
+# WSI_path = mainpath+'WSI/test/'
+# WSISG_path= mainpath +'SG/test/'
 
-listfiles = os.listdir(WSI_path)
+listfiles = os.listdir(mainpath)
+
+#%%
+import cv2 as cv
+from scipy import misc
+from scipy.ndimage import gaussian_filter
 
 NE=(5,5)
-HB=(255,102)
+HB=(255,101)
+ch1=HB[0]
+ch2=HB[1]
 
-ch1=6
-ch2=4
+imgmask = Image.open(mainpath+listfiles[2])
+imgmask=np.array(imgmask)
 
-# % PCran=double(scaled_wsi_SG(:,:,1)==6 & scaled_wsi_SG(:,:,2)==208);
-# % PCrnn=double(scaled_wsi_SG(:,:,1)==6 & scaled_wsi_SG(:,:,2)==4);
+mask = (imgmask[:,:,0]==ch1)*(imgmask[:,:,1]==ch2)
+plt.imshow(mask,cmap='gray')
 
+ WSIpatch.save(destpath + patchname)
+
+
+#%%
 from tqdm import tqdm
 
-#for ind in range(len(listfiles)):
-for ind in tqdm(range(0,1)):
-# for ind in tqdm(range(len(listfiles))):
+for ind in range(0,1):
+#for ind in tqdm(range(0,1)):
+#for ind in tqdm(range(len(listfiles))):
     #filename='W48-1-1-M.02'+'.jpg'
     
     filename=listfiles[ind]
@@ -54,7 +66,7 @@ for ind in tqdm(range(0,1)):
     scaled_WSI = scaled_wsi(WSI_path,filename,scale)
     scaled_WSI_SG = scaled_wsi(WSISG_path,'SG_'+filename,scale)
       
-    WSI_SG_region=wsiregion(scaled_WSI_SG,ch1,ch2)
+    WSI_SG_region=wsiregion(scaled_WSI_SG,ch1=HB[0],ch2=HB[1])
     [grtr_mask_pix, coord_grtr]=grtrpixelmask(WSI_SG_region,
                                   patchsize,
                                   stride,
@@ -62,8 +74,7 @@ for ind in tqdm(range(0,1)):
                                   th)
     
     destpath='C:/Users/Andres/Desktop/destino1/'
-    region='PC'
-    savepatches(WSI,patchsize,filename,region,coord_grtr,destpath)
+    savepatches(WSI,patchsize,filename,coord_grtr,destpath)
     
-    # destpath2='C:/Users/Andres/Desktop/destino2/'
-    # savepatches(WSI_SG,patchsize,filename,coord_grtr,destpath2)
+    destpath2='C:/Users/Andres/Desktop/destino2/'
+    savepatches(WSI_SG,patchsize,filename,coord_grtr,destpath2)
