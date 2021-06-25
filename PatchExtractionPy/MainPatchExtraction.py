@@ -4,13 +4,21 @@ Created on Fri Jun 25 06:41:55 2021
 
 @author: Andres
 """
+import os
+import cv2 as cv
+import numpy as np
+from matplotlib import pyplot as plt
+from PIL import Image
+import pandas as pd
 
-from PatchExtractionTool import PatchExtractionTool
+import PatchExtractionTool
 
 #%%
 ExtrationParams = 'PatchExtParams.xlsx'
 
 df = pd.read_excel(ExtrationParams, sheet_name='CurrentExp')
+
+#%%
 
 # Ruta principal y ruta de destino
 mainpath = '/Users/Andres/Downloads/'
