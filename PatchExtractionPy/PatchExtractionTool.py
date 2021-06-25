@@ -77,68 +77,68 @@ class PatchExtractionTool():
         pass
     
 
-ExtrationParams = 'PatchExtParams.xlsx'
+# ExtrationParams = 'PatchExtParams.xlsx'
 
-df = pd.read_excel(ExtrationParams, sheet_name='CurrentExp')
+# df = pd.read_excel(ExtrationParams, sheet_name='CurrentExp')
 
-# Ruta principal y ruta de destino
-mainpath = '/Users/Andres/Downloads/'
-destpath='/Users/Andres/Desktop/destino3/'
+# # Ruta principal y ruta de destino
+# mainpath = '/Users/Andres/Downloads/'
+# destpath='/Users/Andres/Desktop/destino3/'
 
-WSI_path = mainpath + 'WSI/train/'
-WSISG_path= mainpath + 'SG/train/'
+# WSI_path = mainpath + 'WSI/train/'
+# WSISG_path= mainpath + 'SG/train/'
 
-listfiles = os.listdir(WSI_path)
+# listfiles = os.listdir(WSI_path)
 
-numclasses=df.shape[0]
-patcheslist=[]
-listopenfiles=[]
-len(listfiles)
+# numclasses=df.shape[0]
+# patcheslist=[]
+# listopenfiles=[]
+# len(listfiles)
 
-for indcase in range(len(listfiles)):
+# for indcase in range(len(listfiles)):
     
-    print('Caso '+ str(indcase+1) +' de ' + str(len(listfiles)))
+#     print('Caso '+ str(indcase+1) +' de ' + str(len(listfiles)))
     
-    filename = listfiles[indcase]    
-    numpatchwsi = np.zeros((1,numclasses))   
-    regionname=[]
+#     filename = listfiles[indcase]    
+#     numpatchwsi = np.zeros((1,numclasses))   
+#     regionname=[]
     
-    for i in range(numclasses):
-        region=df['region'][i]
-        ch1=df['ch1'][i]
-        ch2=df['ch2'][i]
-        patchsize=df['patchsize'][i]
-        stride=df['stride'][i]
-        scale=df['scale'][i]
-        th=df['th'][i]
+#     for i in range(numclasses):
+#         region=df['region'][i]
+#         ch1=df['ch1'][i]
+#         ch2=df['ch2'][i]
+#         patchsize=df['patchsize'][i]
+#         stride=df['stride'][i]
+#         scale=df['scale'][i]
+#         th=df['th'][i]
     
-        PatchTool = PatchExtractionTool(region,
-                                  ch1,
-                                  ch2,
-                                  patchsize,
-                                  stride,
-                                  scale,
-                                  th)
+#         PatchTool = PatchExtractionTool(region,
+#                                   ch1,
+#                                   ch2,
+#                                   patchsize,
+#                                   stride,
+#                                   scale,
+#                                   th)
         
-        [a,coord_grtr,numpatches]=PatchTool.getWSIregion(WSISG_path,filename)
+#         [a,coord_grtr,numpatches]=PatchTool.getWSIregion(WSISG_path,filename)
         
-        patchfolder = destpath + region + '/'
+#         patchfolder = destpath + region + '/'
         
-        # PatchTool.getsavepatch(WSI_path,
-        #                        filename,
-        #                        patchsize,
-        #                        region,
-        #                        coord_grtr,
-        #                        patchfolder)
+#         # PatchTool.getsavepatch(WSI_path,
+#         #                        filename,
+#         #                        patchsize,
+#         #                        region,
+#         #                        coord_grtr,
+#         #                        patchfolder)
 
-        regionname.append(region)
-        numpatchwsi[0,i]=numpatches
+#         regionname.append(region)
+#         numpatchwsi[0,i]=numpatches
     
 
-    listopenfiles.append(filename)
-    patcheslist.append(numpatchwsi)
+#     listopenfiles.append(filename)
+#     patcheslist.append(numpatchwsi)
 
 
-table=PatchTool.getpatchestable(listopenfiles,patcheslist,regionname)
+# table=PatchTool.getpatchestable(listopenfiles,patcheslist,regionname)
 
-print("The process has ended")
+# print("The process has ended")
