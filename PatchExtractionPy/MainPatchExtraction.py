@@ -10,15 +10,22 @@ import numpy as np
 from matplotlib import pyplot as plt
 from PIL import Image
 import pandas as pd
+from PatchExtractionTool import PatchExtractionTool
+#%%
 
-import PatchExtractionTool
+PatchTool = PatchExtractionTool(region,
+                                  ch1,
+                                  ch2,
+                                  patchsize,
+                                  stride,
+                                  scale,
+                                  th)
+
 
 #%%
 ExtrationParams = 'PatchExtParams.xlsx'
 
 df = pd.read_excel(ExtrationParams, sheet_name='CurrentExp')
-
-#%%
 
 # Ruta principal y ruta de destino
 mainpath = '/Users/Andres/Downloads/'
