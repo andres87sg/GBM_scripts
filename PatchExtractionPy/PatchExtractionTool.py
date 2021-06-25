@@ -125,12 +125,7 @@ for indcase in range(len(listfiles)):
         
         patchfolder = destpath + region + '/'
         
-        # PatchTool.getsavepatch(WSI_path,
-        #                        filename,
-        #                        patchsize,
-        #                        region,
-        #                        coord_grtr,
-        #                        patchfolder)
+        #PatchTool.getsavepatch(WSI_path,filename,patchsize,region,coord_grtr,patchfolder)
 
         regionname.append(region)
         numpatchwsi[0,i]=numpatches
@@ -141,5 +136,6 @@ for indcase in range(len(listfiles)):
 
 
 table=PatchTool.getpatchestable(listopenfiles,patcheslist,regionname)
+table.to_excel('eso.xls')
 
 print("The process has ended")
