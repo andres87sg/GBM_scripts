@@ -123,12 +123,13 @@ for indcase in range(len(listfiles)):
         [a,coord_grtr,numpatches]=PatchTool.getWSIregion(WSISG_path,filename)
         
         patchfolder = destpath + region + '/'
-        PatchTool.getsavepatch(WSI_path,
-                               filename,
-                               patchsize,
-                               region,
-                               coord_grtr,
-                               patchfolder)
+        
+        # PatchTool.getsavepatch(WSI_path,
+        #                        filename,
+        #                        patchsize,
+        #                        region,
+        #                        coord_grtr,
+        #                        patchfolder)
 
         regionname.append(region)
         numpatchwsi[0,i]=numpatches
