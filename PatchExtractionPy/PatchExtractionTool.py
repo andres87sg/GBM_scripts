@@ -11,6 +11,7 @@ import cv2 as cv
 import numpy as np
 from matplotlib import pyplot as plt
 from PIL import Image
+import pandas as pd
 Image.MAX_IMAGE_PIXELS = None
 
 from PatchExtractionUtils import scaled_wsi, wsiregion, grtrpixelmask, savepatches
@@ -75,17 +76,12 @@ class PatchExtractionTool():
     def run_training(self):
         pass
     
-#%%
 
-import pandas as pd
+ExtrationParams = 'PatchExtParams.xlsx'
 
-archivo = 'PatchExtParams.xlsx'
+df = pd.read_excel(ExtrationParams, sheet_name='CurrentExp')
 
-df = pd.read_excel(archivo, sheet_name='CurrentExp')
-
-#%%
-
-
+# Ruta principal y ruta de destino
 mainpath = '/Users/Andres/Downloads/'
 destpath='/Users/Andres/Desktop/destino3/'
 
@@ -94,27 +90,19 @@ WSISG_path= mainpath + 'SG/train/'
 
 listfiles = os.listdir(WSI_path)
 
-# for listfiles in listfiles:
-#     print(listfiles)
-
-#filename=listfiles[ind]
-
 numclasses=df.shape[0]
 patcheslist=[]
 listopenfiles=[]
 len(listfiles)
 
 for indcase in range(len(listfiles)):
-#for indcase in range(1):
     
     print('Caso '+ str(indcase+1) +' de ' + str(len(listfiles)))
     
-    filename=listfiles[indcase]
-    #print(filename)
-    
-    numpatchwsi=np.zeros((1,numclasses))
-    
+    filename = listfiles[indcase]    
+    numpatchwsi = np.zeros((1,numclasses))   
     regionname=[]
+    
     for i in range(numclasses):
         region=df['region'][i]
         ch1=df['ch1'][i]
