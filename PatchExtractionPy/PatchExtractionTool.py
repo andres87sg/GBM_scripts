@@ -58,14 +58,12 @@ class PatchExtractionTool():
         patcheslisttable=np.concatenate(patcheslist, axis=0 )
         
         
-        df1=pd.DataFrame()
+        df_patches=pd.DataFrame()
         for i in range(len(regionname)):
-            df1[regionname[i]] = np.int16(patcheslisttable[:,i])
+            df_patches[regionname[i]] = np.int16(patcheslisttable[:,i])
             #df1[regionname[1]] = np.int16(patcheslisttable[:,1])
         
-        table=pd.concat([filenametable,df1], axis=1)        
-
-
+        table=pd.concat([filenametable,df_patches], axis=1)        
         
         return table
         
@@ -80,16 +78,18 @@ class PatchExtractionTool():
 
 ExtrationParams = 'PatchExtParams.xlsx'
 
-df = pd.read_excel(ExtrationParams, sheet_name='CurrentExp')
+df = pd.read_excel(ExtrationParams, sheet_name='HBPatchExt')
 
 # Ruta principal y ruta de destino
-mainpath = '/Users/Andres/Downloads/'
+#mainpath = '/Users/Andres/Downloads/'
+mainpath='C:/Users/Andres/Desktop/WSIHB/'
 destpath='/Users/Andres/Desktop/destino3/'
 
 WSI_path = mainpath + 'WSI/train/'
 WSISG_path= mainpath + 'SG/train/'
 
 listfiles = os.listdir(WSI_path)
+listfiles.sort()
 
 numclasses=df.shape[0]
 patcheslist=[]
@@ -121,12 +121,15 @@ for indcase in range(len(listfiles)):
                                   scale,
                                   th)
         
-        [a,coord_grtr,numpatches]=PatchTool.getWSIregion(WSISG_path,filename)
+        [grtr_mask_pix,coord_grtr,numpatches]=PatchTool.getWSIregion(WSISG_path,filename)
         
         patchfolder = destpath + region + '/'
         
-        #PatchTool.getsavepatch(WSI_path,filename,patchsize,region,coord_grtr,patchfolder)
-
+        PatchTool.getsavepatch(WSI_path,filename,patchsize,region,coord_grtr,patchfolder)
+        
+        patchfolder2= patchfolder = destpath + region + '_SG/'
+        PatchTool.getsavepatch(WSISG_path,'SG_'+filename,patchsize,region,coord_grtr,patchfolder2)
+        
         regionname.append(region)
         numpatchwsi[0,i]=numpatches
     
@@ -135,7 +138,7 @@ for indcase in range(len(listfiles)):
     patcheslist.append(numpatchwsi)
 
 
-table=PatchTool.getpatchestable(listopenfiles,patcheslist,regionname)
-table.to_excel('eso.xls')
+#table=PatchTool.getpatchestable(listopenfiles,patcheslist,regionname)
+#table.to_excel('eso.xls',sheet_name='hoja1')
 
 print("The process has ended")
