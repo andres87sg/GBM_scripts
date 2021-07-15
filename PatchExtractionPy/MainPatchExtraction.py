@@ -25,11 +25,11 @@ PatchTool = PatchExtractionTool(region,
 #%%
 ExtrationParams = 'PatchExtParams.xlsx'
 
-df = pd.read_excel(ExtrationParams, sheet_name='CurrentExp')
+df = pd.read_excel(ExtrationParams, sheet_name='PCPatch')
 
 # Ruta principal y ruta de destino
 mainpath = '/Users/Andres/Downloads/'
-destpath='/Users/Andres/Desktop/destino3/'
+destpath='/Users/Andres/Desktop/destino4/'
 
 WSI_path = mainpath + 'WSI/train/'
 WSISG_path= mainpath + 'SG/train/'

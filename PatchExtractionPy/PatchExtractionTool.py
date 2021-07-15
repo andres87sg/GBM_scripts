@@ -78,15 +78,15 @@ class PatchExtractionTool():
 
 ExtrationParams = 'PatchExtParams.xlsx'
 
-df = pd.read_excel(ExtrationParams, sheet_name='HBPatchExt')
+df = pd.read_excel(ExtrationParams, sheet_name='PCPatch')
 
 # Ruta principal y ruta de destino
 #mainpath = '/Users/Andres/Downloads/'
-mainpath='C:/Users/Andres/Desktop/WSIHB/'
-destpath='/Users/Andres/Desktop/destino3/'
+mainpath='/Users/Andres/Downloads/'
+destpath='/Users/Andres/Desktop/destino4/'
 
-WSI_path = mainpath + 'WSI/train/'
-WSISG_path= mainpath + 'SG/train/'
+WSI_path = mainpath + 'WSI/test/'
+WSISG_path= mainpath + 'SG/test/'
 
 listfiles = os.listdir(WSI_path)
 listfiles.sort()
