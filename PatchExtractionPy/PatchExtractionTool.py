@@ -85,8 +85,8 @@ df = pd.read_excel(ExtrationParams, sheet_name='PCPatch')
 mainpath='/Users/Andres/Downloads/'
 destpath='/Users/Andres/Desktop/destino4/'
 
-WSI_path = mainpath + 'WSI/test/'
-WSISG_path= mainpath + 'SG/test/'
+WSI_path = mainpath + 'WSI/train/'
+WSISG_path= mainpath + 'SG/train/'
 
 listfiles = os.listdir(WSI_path)
 listfiles.sort()
