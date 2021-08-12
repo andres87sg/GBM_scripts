@@ -1,0 +1,5 @@
+- Abrir "PatchExtractionTool.py"
+- Crear carpetas, por ejemplo si es para Pseudoempalizado -> PC y PC_SG
+- Configurar en el excel patch size, stride, ch1 y ch2 (están en el excel), etc
+- Se generan máscaras de segmentación de colores
+- Si se quiere convertir esas máscaras a blanco y negro se debe ejecutar "Colormask2graymask.py"
