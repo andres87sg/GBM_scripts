@@ -7,8 +7,8 @@ Created on Wed Jul  7 19:27:03 2021
 import cv2 as cv
 
 #%%
-path = 'C:/Users/Andres/Desktop/destino4/PC_SG/'
-destpath = 'C:/Users/Andres/Desktop/destino4/PC_SG2/'
+path = 'C:/Users/Andres/Desktop/destino5/PC_SG/'
+destpath = 'C:/Users/Andres/Desktop/destino5/PC_SG2/'
 listfiles = os.listdir(path)
 listfiles.sort()
 
@@ -17,6 +17,7 @@ for i in range(len(listfiles)):
     
     im1 = Image.open(path + filename)
     im2 = np.array(im1)
+    
     
     ch1 = 6
     ch2 = 208
