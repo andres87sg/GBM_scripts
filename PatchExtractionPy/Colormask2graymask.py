@@ -5,14 +5,18 @@ Created on Wed Jul  7 19:27:03 2021
 @author: Andres
 """
 import cv2 as cv
+import numpy as np
+from tqdm import tqdm
+from os import listdir
+from os.path import join
 
 #%%
 path = 'C:/Users/Andres/Desktop/destino 7/PC_SG/'
 destpath = 'C:/Users/Andres/Desktop/destino 7/PC_SG2/'
-listfiles = os.listdir(path)
+listfiles = listdir(path)
 listfiles.sort()
 
-for i in range(len(listfiles)):
+for i in tqdm(range(len(listfiles))):
     filename=listfiles[i]
     
     im1 = Image.open(path + filename)
