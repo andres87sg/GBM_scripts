@@ -7,8 +7,8 @@ Created on Wed Jul  7 19:27:03 2021
 import cv2 as cv
 
 #%%
-path = 'C:/Users/Andres/Desktop/destino5/PC_SG/'
-destpath = 'C:/Users/Andres/Desktop/destino5/PC_SG2/'
+path = 'C:/Users/Andres/Desktop/destino 7/PC_SG/'
+destpath = 'C:/Users/Andres/Desktop/destino 7/PC_SG2/'
 listfiles = os.listdir(path)
 listfiles.sort()
 

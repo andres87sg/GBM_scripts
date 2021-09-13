@@ -7,13 +7,14 @@ Created on Wed Jun 23 17:38:43 2021
 import math
 
 import os
+from os import path
 import cv2 as cv
 import numpy as np
 from matplotlib import pyplot as plt
 from PIL import Image
 import pandas as pd
 Image.MAX_IMAGE_PIXELS = None
-
+#%%
 from PatchExtractionUtils import scaled_wsi, wsiregion, grtrpixelmask, savepatches
 
 class PatchExtractionTool():
@@ -31,9 +32,13 @@ class PatchExtractionTool():
 
     def getWSIregion(self,WSISG_path,filename):
         
+        # Scaled WSI color mask
         scaled_WSI_SG = scaled_wsi(WSISG_path,'SG_'+filename,scale)
-          
+        
+        # Scaled WSI segmentation mask (Color=[ch1,ch2])
         WSI_SG_region=wsiregion(scaled_WSI_SG,ch1,ch2)
+        
+        # Extract grountruth mask in pixels and grtr coordinates
         [grtr_mask_pix, coord_grtr]=grtrpixelmask(WSI_SG_region,
                                       patchsize,
                                       stride,
@@ -80,13 +85,15 @@ ExtrationParams = 'PatchExtParams.xlsx'
 
 df = pd.read_excel(ExtrationParams, sheet_name='PCPatch')
 
+#%%
+
 # Ruta principal y ruta de destino
 #mainpath = '/Users/Andres/Downloads/'
-mainpath='/Users/Andres/Downloads/'
-destpath='/Users/Andres/Desktop/destino5/'
+mainpath='/Users/Andres/Downloads/Images/'
+destpath='/Users/Andres/Desktop/destino 7/'
 
-WSI_path = mainpath + 'WSI/train/'
-WSISG_path= mainpath + 'SG/train/'
+WSI_path = mainpath + 'WSI/Training/'
+WSISG_path= mainpath + 'SG/Training/'
 
 listfiles = os.listdir(WSI_path)
 listfiles.sort()
@@ -123,10 +130,11 @@ for indcase in range(len(listfiles)):
         
         [grtr_mask_pix,coord_grtr,numpatches]=PatchTool.getWSIregion(WSISG_path,filename)
         
+        # dest path = ./destpath/REGION
         patchfolder = destpath + region + '/'
-        
         PatchTool.getsavepatch(WSI_path,filename,patchsize,region,coord_grtr,patchfolder)
         
+        # dest path = ./destpath/REGION_SG
         patchfolder2= patchfolder = destpath + region + '_SG/'
         PatchTool.getsavepatch(WSISG_path,'SG_'+filename,patchsize,region,coord_grtr,patchfolder2)
         
