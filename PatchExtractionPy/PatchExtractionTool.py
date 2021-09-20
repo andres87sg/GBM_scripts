@@ -16,6 +16,7 @@ from matplotlib import pyplot as plt
 from PIL import Image
 import pandas as pd
 Image.MAX_IMAGE_PIXELS = None
+
 #%%
 from PatchExtractionUtils import scaled_wsi, wsiregion, grtrpixelmask, savepatches
 
@@ -87,7 +88,6 @@ ExtrationParams = 'PatchExtParams.xlsx'
 
 df = pd.read_excel(ExtrationParams, sheet_name='PCPatch')
 
-#%%
 
 # Ruta principal y ruta de destino
 #mainpath = '/Users/Andres/Downloads/'
