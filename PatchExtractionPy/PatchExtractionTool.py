@@ -2,7 +2,9 @@
 """
 Created on Wed Jun 23 17:38:43 2021
 
-@author: Andres
+@author: Andres Sandino
+e-mail : asandino@unal.edu.co
+
 """
 import math
 
