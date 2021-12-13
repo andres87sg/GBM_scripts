@@ -19,10 +19,10 @@ Image.MAX_IMAGE_PIXELS = None
 from ClassifierUtils import scaled_wsi, wsiregion, grtrpixelmask
 from ClassifierUtils import pixtomask
 
-path='C:/Users/Andres/Downloads/WSI/test/'
-path_SG='C:/Users/Andres/Downloads/SG/test/'
+path='C:/Users/Andres/Desktop/destino 13/PC/'
+path_SG='C:/Users/Andres/Desktop/destino 13/PC_SG/'
 
-filename='W48-1-1-M.04.jpg'
+filename='W5-1-1-N.2.01_0002_PC.jpg'
 
 scale=2
 th=0.5
