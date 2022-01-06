@@ -13,19 +13,18 @@ import numpy as np
 from matplotlib import pyplot as plt
 from PIL import Image
 Image.MAX_IMAGE_PIXELS = None
-
-#%%
-
 from ClassifierUtils import scaled_wsi, wsiregion, grtrpixelmask
 from ClassifierUtils import pixtomask
 
-path='C:/Users/Andres/Desktop/destino 13/PC/'
-path_SG='C:/Users/Andres/Desktop/destino 13/PC_SG/'
+#%%
 
-filename='W5-1-1-N.2.01_0002_PC.jpg'
+path='C:/Users/Andres/Downloads/WSI/test/'
+path_SG='C:/Users/Andres/Downloads/SG/test/'
 
+filename='W48-1-1-M.02.jpg'
+# SG_W48-1-1-M.02
 scale=2
-th=0.5
+th=0.75
 patchsize=224
 
 
@@ -35,7 +34,10 @@ scaled_WSI_SG = scaled_wsi(path_SG,'SG_'+filename,scale)
 
 # Selecting 
 NEr=wsiregion(scaled_WSI_SG,ch1=5,ch2=5)
+
 CTr=wsiregion(scaled_WSI_SG,ch1=5,ch2=208)
+HBr=wsiregion(scaled_WSI_SG,ch1=255,ch2=51)
+
 
 # Create groundtruth mask
 (imheigth,imwidth,x)=np.shape(scaled_WSI)
@@ -43,6 +45,11 @@ grtr_mask=np.zeros((imheigth,imwidth))
 
 grtr_mask[NEr==1]=1
 grtr_mask[CTr==1]=2
+
+# Extrae todas las coordenadas
+CTr=scaled_WSI_SG[:,:,1]<255
+
+#%%
 
 
 [NEr_pix,NEcoordpix,NEcoord]=grtrpixelmask(NEr,
@@ -69,8 +76,8 @@ dir='C:/Users/Andres/Desktop/GBM_Project/Experiments/CNN_Models/Model_CRvsNE.h5'
 model=keras.models.load_model(dir)
 
 #%%
-coord_array=np.array(NEcoord+CTcoord)
-#coord_array=np.array(CTcoord)
+#coord_array=np.array(NEcoord+CTcoord)
+coord_array=np.array(CTcoord)
 
 prediction_list=[]
 
@@ -102,8 +109,8 @@ for i in tqdm(range(np.shape(coord_array)[0])):
 #%%
 pred_mask_pix=np.zeros((np.shape(CTr_pix)))
 
-coordpix=np.array(NEcoordpix+CTcoordpix)
-#coordpix=np.array(CTcoordpix)
+#coordpix=np.array(NEcoordpix+CTcoordpix)
+coordpix=np.array(CTcoordpix)
 
 #%%
 
@@ -157,13 +164,13 @@ plt.imshow(ResizedMask)
 #plt.imshow(ResizedMask)
 
 #%%
-ResizedMask = cv.resize(pp1,(np.shape(pp1)[1]//64,np.shape(pp1)[0]//64),
-                       interpolation = cv.INTER_AREA)
+# ResizedMask = cv.resize(pp1,(np.shape(pp1)[1]//64,np.shape(pp1)[0]//64),
+#                        interpolation = cv.INTER_AREA)
 
-kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (9,9))
-result = cv.morphologyEx(ResizedMask, cv.MORPH_CLOSE, kernel)
+# kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (9,9))
+# result = cv.morphologyEx(ResizedMask, cv.MORPH_CLOSE, kernel)
 
-plt.imshow(result)
+# plt.imshow(result)
 
 
 
