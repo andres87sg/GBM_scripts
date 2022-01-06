@@ -18,12 +18,12 @@ Image.MAX_IMAGE_PIXELS = None
 
 from ClassifierUtils import scaled_wsi, wsiregion, grtrpixelmask
 from ClassifierUtils import pixtomask
-
 path='/home/usuario/Descargas/'
 path_SG='/home/usuario/Descargas/'
 
-filename='298766898_1.jpg'
-#filename='W5-1-1-N.2.01_0002_PC.jpg'
+filename='W9-1-1-H.2.01.jpg'
+filename2='NE_W9-1-1-H.2.01.jpg'
+#filename2='W9-1-1-H.2.01.jpg'
 
 scale=2
 th=0.5
@@ -33,20 +33,30 @@ patchsize=224
 
 scaled_WSI = scaled_wsi(path,filename,scale)
 #scaled_WSI_SG = scaled_wsi(path_SG,'SG_'+filename,scale)
-scaled_WSI_SG = scaled_wsi(path_SG,filename,scale)
+scaled_WSI_SG = scaled_wsi(path_SG,filename2,scale)
 
 #%%
 
 # Selecting 
 #NEr=wsiregion(scaled_WSI_SG,ch1=5,ch2=5)
 #CTr=wsiregion(scaled_WSI_SG,ch1=5,ch2=208)
-NEr=np.uint16(scaled_WSI_SG[:,:,0]<245)
-CTr=np.uint16(scaled_WSI_SG[:,:,0]<245)
 
+#NEr=np.uint16(scaled_WSI_SG[:,:,0]<254)
+#CTr=np.uint16(scaled_WSI_SG[:,:,0]<254)
+
+NEr=np.uint16(scaled_WSI_SG==255)
+CTr=np.uint16(scaled_WSI_SG==255)
+
+#%%
 
 # Create groundtruth mask
-(imheigth,imwidth,x)=np.shape(scaled_WSI)
+#(imheigth,imwidth,x)=np.shape(NEr)
+(imheigth,imwidth)=np.shape(NEr)
+
+#%%
 grtr_mask=np.zeros((imheigth,imwidth))
+
+#%%
 
 grtr_mask[NEr==1]=1
 grtr_mask[CTr==1]=2
@@ -66,13 +76,17 @@ grtr_mask_pix=np.zeros((np.shape(CTr_pix)))
 grtr_mask_pix[NEr_pix==1]=1
 grtr_mask_pix[CTr_pix==1]=2
 
+
+
 plt.imshow(grtr_mask_pix,cmap='gray')
 
 #%% Prediction
 
 import tensorflow.keras as keras
 
-dir='C:/Users/Andres/Desktop/GBM_Project/Experiments/CNN_Models/Model_CRvsNE.h5'
+#keras.models.load_model('')
+dir='/home/usuario/Documentos/GBM/Experimentos/BestNESegmModel.h5'
+#dir='/home/usuario/Descargas/Model_CRvsNE.h5'
 model=keras.models.load_model(dir)
 
 #%%
@@ -115,7 +129,7 @@ coordpix=np.array(NEcoordpix+CTcoordpix)
 #%%
 
 for ind in range(np.shape(coordpix)[0]):
-    print(ind)
+#    print(ind)
     rowx,colx = coordpix[ind]        
     pred_mask_pix[rowx,colx]=prediction_list[ind]+1
 
@@ -153,8 +167,26 @@ ResizedMask = cv.resize(smoothM,(np.shape(scaled_WSI)[1],np.shape(scaled_WSI)[0]
 
 ResizedMask = np.round(ResizedMask)
 
-plt.imshow(ResizedMask)
+plt.imshow(ResizedMask,cmap='gray')
+plt.axis('off')
 
+#%%
+
+import cv2 as cv
+from PIL import Image 
+import PIL 
+
+im2=np.int16(ResizedMask*255/2)
+
+filename3="/home/usuario/Descargas/NEHB1_W9-1-1-H.2.01.jpg"
+cv.imwrite(filename3, im2)
+
+#%%
+# #%%
+# im3 = Image.fromarray(im2, 'RGB')
+
+# #%%
+# im1 = im3.save("/home/usuario/Descargas/geeks.jpg")
 
 #jj=np.int16(pp1==1)
 
@@ -164,22 +196,22 @@ plt.imshow(ResizedMask)
 #plt.imshow(ResizedMask)
 
 #%%
-ResizedMask = cv.resize(pp1,(np.shape(pp1)[1]//64,np.shape(pp1)[0]//64),
-                       interpolation = cv.INTER_AREA)
+# ResizedMask = cv.resize(pp1,(np.shape(pp1)[1]//64,np.shape(pp1)[0]//64),
+#                        interpolation = cv.INTER_AREA)
 
-kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (9,9))
-result = cv.morphologyEx(ResizedMask, cv.MORPH_CLOSE, kernel)
+# kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (9,9))
+# result = cv.morphologyEx(ResizedMask, cv.MORPH_CLOSE, kernel)
 
-plt.imshow(result)
+# plt.imshow(result)
 
 
 
 
 #%%
 
-dilated = cv.open(pp1, 
-                     cv.getStructuringElement(cv.MORPH_ELLIPSE, (3, 3)), 
-                     iterations=2)
+# dilated = cv.open(pp1, 
+#                      cv.getStructuringElement(cv.MORPH_ELLIPSE, (3, 3)), 
+#                      iterations=2)
 
 
 #%%
@@ -188,7 +220,7 @@ dilated = cv.open(pp1,
 
 
 
-plt.imshow(BlurredMask)
+# plt.imshow(BlurredMask)
 
 # imgoutput2=np.int16(imgoutput>0.5)
 
@@ -200,11 +232,11 @@ plt.imshow(BlurredMask)
 
 #%%
 
-for i in range (0,10):
+# for i in range (0,10):
 
-    ll = cv.GaussianBlur(ll, (5,5), 10)
+#     ll = cv.GaussianBlur(ll, (5,5), 10)
 
-plt.imshow(ll)
+# plt.imshow(ll)
 
 
 
