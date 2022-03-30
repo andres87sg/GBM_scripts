@@ -13,7 +13,7 @@ Image.MAX_IMAGE_PIXELS = None
 
 def scaled_wsi(path,filename,scale):
     WSI = Image.open(path + filename)
-    scale = 2
+    # scale = 2
 
     # Reducing image (Scaled Image)
     (width, height) = (WSI.width // scale, WSI.height // scale)
