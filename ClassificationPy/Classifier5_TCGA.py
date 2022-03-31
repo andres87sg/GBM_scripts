@@ -27,10 +27,17 @@ import cv2 as cv
 import matplotlib.pyplot as plt
 
 
-image_path = 'C:/Users/Andres/Desktop/GBM_Project/TCGA_WSI/TCGA-15-0742.svs'
-path_mask='C:/Users/Andres/Desktop/GBM_Project/TCGA_WSI/WSI_mask/TCGA-15-0742/'
-filename_mask = 'TCGA-15-0742_mask.png'
+image_path = '/home/usuario/Documentos/GBM/TCGA/TCGA-02-0336.svs'
+path_mask = '/home/usuario/Documentos/GBM/TCGA/'
+filename_mask = 'TCGA-02-0336_mask.png'
 
+
+#%%
+
+# image_path = 'C:/Users/Andres/Desktop/GBM_Project/TCGA_WSI/TCGA-15-0742.svs'
+# path_mask='C:/Users/Andres/Desktop/GBM_Project/TCGA_WSI/WSI_mask/TCGA-15-0742/'
+# filename_mask = 'TCGA-15-0742_mask.png'TCGA-02-0336
+a=0
 
 slide = slideio.open_slide(image_path,"SVS")
 wsi = slide.get_scene(0)
@@ -57,7 +64,7 @@ scaled_WSI = WSI.resize((math.floor(width), math.floor(height)))
 
 #%%
 
-th=0.7
+th=0.5
 
 patchsize = 224
 
@@ -67,7 +74,7 @@ scaledpatchsize=patchsize//scale
 
 CTr=np.uint16(scaled_WSI_SG==1)
 
-(imheigth,imwidth)=np.shape(NEr)
+(imheigth,imwidth)=np.shape(CTr)
 
 grtr_mask=np.zeros((imheigth,imwidth))
 
@@ -87,20 +94,19 @@ plt.imshow(grtr_mask_pix,cmap='gray')
 import tensorflow.keras as keras
 
 #keras.models.load_model('')
-dir='C:/Users/Andres/Desktop/GBM_Project/Experiments/CNN_Models/Model_CRvsNE.h5'
-#dir='/home/usuario/Descargas/Model_CRvsNE.h5'
-model=keras.models.load_model(dir)
+#dir='C:/Users/Andres/Desktop/GBM_Project/Experiments/CNN_Models/Model_CRvsNE.h5
+model_path = '/home/usuario/Documentos/GBM/TCGA/'
+model_file = 'Model_CRvsNE.h5'
+
+model=keras.models.load_model(model_path+model_file)
 
 #%%
-#coord_array=np.array(NEcoord+CTcoord)
 coord_array=np.array(CTcoord)
-
-#%%
 
 prediction_list=[]
 
 # WSI = Image.open(path + filename)
-WSI = Image.fromarray(block, 'RGB')
+#WSI = Image.fromarray(block, 'RGB')
 #%%
 
 from tqdm import tqdm
@@ -144,7 +150,7 @@ plt.imshow(pred_mask_pix)
 #%%
 
 # Convierte la máscara de pixeles en una de tamaño original
-patchsize=224//2
+patchsize=224//scale
 
 pp1=pixtomask(pred_mask_pix,CTr,patchsize)
 pp2=pixtomask(grtr_mask_pix,CTr,patchsize)
