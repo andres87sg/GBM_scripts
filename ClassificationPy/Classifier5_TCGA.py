@@ -18,12 +18,7 @@ Image.MAX_IMAGE_PIXELS = None
 
 from ClassifierUtils import scaled_wsi, wsiregion, grtrpixelmask
 from ClassifierUtils import pixtomask
-# path='/home/usuario/Descargas/'
-# path_SG='/home/usuario/Descargas/'
 
-# filename='W9-1-1-H.2.01.jpg'
-# filename2='NE_W9-1-1-H.2.01.jpg'
-# #filename2='W9-1-1-H.2.01.jpg'
 
 #%%
 
@@ -32,13 +27,15 @@ import cv2 as cv
 import matplotlib.pyplot as plt
 
 
-image_path = 'C:/Users/Andres/Desktop/GBM_Project/TCGA_WSI/TCGA-02-0336.svs'
-path_mask='C:/Users/Andres/Desktop/GBM_Project/TCGA_WSI/WSI_mask/TCGA-02-0336/'
-filename_mask = 'mask_TCGA-02-0336.png'
+image_path = 'C:/Users/Andres/Desktop/GBM_Project/TCGA_WSI/TCGA-15-0742.svs'
+path_mask='C:/Users/Andres/Desktop/GBM_Project/TCGA_WSI/WSI_mask/TCGA-15-0742/'
+filename_mask = 'TCGA-15-0742_mask.png'
 
 
 slide = slideio.open_slide(image_path,"SVS")
 wsi = slide.get_scene(0)
+magnification = wsi.magnification
+
 block = wsi.read_block()
 mask = cv.imread(path_mask)
 
@@ -46,15 +43,9 @@ mask = cv.imread(path_mask)
 
 scale=2
 
-
-scaled_WSI_SG = scaled_wsi(path_mask,filename_mask,scale)
-
-#%%
+scaled_WSI_SG = scaled_wsi(path_mask,filename_mask,scale)//255
 
 WSI = Image.fromarray(block, 'RGB')
-
-scale = 2
-
 
 (width, height) = (WSI.width // scale, WSI.height // scale)
 
@@ -66,65 +57,30 @@ scaled_WSI = WSI.resize((math.floor(width), math.floor(height)))
 
 #%%
 
-th=0.75
-patchsize=224
-
-
-
-# scaled_WSI = scaled_wsi(path_mask,filename_mask,scale)
-#scaled_WSI_SG = scaled_wsi(path_SG,'SG_'+filename,scale)
-scaled_WSI_SG = scaled_wsi(path_mask,filename_mask,scale)
-
-
-#av68 No 51 04
-
-
-#%%
-
-# Selecting 
-#NEr=wsiregion(scaled_WSI_SG,ch1=5,ch2=5)
-#CTr=wsiregion(scaled_WSI_SG,ch1=5,ch2=208)
-
-#NEr=np.uint16(scaled_WSI_SG[:,:,0]<254)
-#CTr=np.uint16(scaled_WSI_SG[:,:,0]<254)
-
-NEr=np.uint16(scaled_WSI_SG==255)
-CTr=np.uint16(scaled_WSI_SG==255)
-
-#%%
-
-# Create groundtruth mask
-#(imheigth,imwidth,x)=np.shape(NEr)
-(imheigth,imwidth)=np.shape(NEr)
-
-#%%
-grtr_mask=np.zeros((imheigth,imwidth))
-
-#%%
-
-grtr_mask[NEr==1]=1
-grtr_mask[CTr==1]=2
+th=0.7
 
 patchsize = 224
-th = 0.75
 
-[NEr_pix,NEcoordpix,NEcoord]=grtrpixelmask(NEr,
-                                            patchsize,
-                                            scale,
-                                            th=th)
-        
+scaledpatchsize=patchsize//scale
+
+
+
+CTr=np.uint16(scaled_WSI_SG==1)
+
+(imheigth,imwidth)=np.shape(NEr)
+
+grtr_mask=np.zeros((imheigth,imwidth))
+
 [CTr_pix,CTcoordpix,CTcoord]=grtrpixelmask(CTr,
-                                            patchsize,
+                                            scaledpatchsize,
                                             scale,
                                             th=th)
 
-grtr_mask_pix=np.zeros((np.shape(CTr_pix)))
-grtr_mask_pix[NEr_pix==1]=1
-grtr_mask_pix[CTr_pix==1]=2
-
-
+grtr_mask_pix = CTr_pix
 
 plt.imshow(grtr_mask_pix,cmap='gray')
+
+# plt.imshow(NEr_pix)
 
 #%% Prediction
 
@@ -185,8 +141,10 @@ for ind in range(np.shape(coordpix)[0]):
 #%%
 plt.imshow(pred_mask_pix)
 
+#%%
+
 # Convierte la máscara de pixeles en una de tamaño original
-patchsize=224
+patchsize=224//2
 
 pp1=pixtomask(pred_mask_pix,CTr,patchsize)
 pp2=pixtomask(grtr_mask_pix,CTr,patchsize)

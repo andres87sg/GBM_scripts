@@ -36,7 +36,7 @@ def grtrpixelmask(img,patchsize,scale,th):
     coord_grtr_pix=[]
 
     #ws = patchsize//scale # Scaled window size
-    ws=patchsize
+    ws = patchsize
     
     col = int(np.shape(img)[1]//patchsize)
     row = int(np.shape(img)[0]//patchsize)
@@ -45,6 +45,7 @@ def grtrpixelmask(img,patchsize,scale,th):
     
     grtr_mask_pix=np.zeros((row,col))
     
+    # area_th=ws**2*th
     area_th=ws**2*th
     #mask=grtr_mask==1
     
