@@ -14,22 +14,27 @@ from matplotlib import pyplot as plt
 from PIL import Image
 Image.MAX_IMAGE_PIXELS = None
 
-#%%
 
 from ClassifierUtils import scaled_wsi, wsiregion, grtrpixelmask
 from ClassifierUtils import pixtomask
 
 
-#%%
 
 import slideio
 import cv2 as cv
 import matplotlib.pyplot as plt
 
 
-image_path = '/home/usuario/Documentos/GBM/TCGA/TCGA-02-0336.svs'
-path_mask = '/home/usuario/Documentos/GBM/TCGA/'
-filename_mask = 'TCGA-02-0336_mask.png'
+
+wsi_name = 'TCGA-15-0742'
+wsi_path = '/home/usuario/Documentos/GBM/TCGA/'
+mask_filename = wsi_name + '_mask.png'
+wsi_filename = wsi_name + '.svs'
+# #%%
+
+# image_path = '/home/usuario/Documentos/GBM/TCGA/TCGA-15-0742.svs'
+# path_mask = '/home/usuario/Documentos/GBM/TCGA/'
+# filename_mask = 'TCGA-15-0742_mask.png'
 
 
 #%%
@@ -39,25 +44,25 @@ filename_mask = 'TCGA-02-0336_mask.png'
 # filename_mask = 'TCGA-15-0742_mask.png'TCGA-02-0336
 a=0
 
-slide = slideio.open_slide(image_path,"SVS")
+slide = slideio.open_slide(wsi_path + wsi_filename,"SVS")
 wsi = slide.get_scene(0)
 magnification = wsi.magnification
-
-block = wsi.read_block()
-mask = cv.imread(path_mask)
+WSIheight,WSIwidth =wsi.size
+# block = wsi.read_block()
+mask = cv.imread(wsi_path + mask_filename)
 
 #%%
 
 scale=2
 
-scaled_WSI_SG = scaled_wsi(path_mask,filename_mask,scale)//255
+scaled_WSI_SG = scaled_wsi(wsi_path,mask_filename,scale)//255
 
-WSI = Image.fromarray(block, 'RGB')
+# WSI = Image.fromarray(block, 'RGB')
 
-(width, height) = (WSI.width // scale, WSI.height // scale)
+(width, height) = (WSIwidth // scale, WSIheight // scale)
 
 # Scaled WSI and Image Segmentation
-scaled_WSI = WSI.resize((math.floor(width), math.floor(height)))
+# scaled_WSI = WSI.resize((math.floor(width), math.floor(height)))
 
 # scaled_WSI_array = np.array(scaled_WSI)
 
@@ -90,13 +95,13 @@ plt.imshow(grtr_mask_pix,cmap='gray')
 # plt.imshow(NEr_pix)
 
 #%% Prediction
-
+#a
 import tensorflow.keras as keras
 
 #keras.models.load_model('')
 #dir='C:/Users/Andres/Desktop/GBM_Project/Experiments/CNN_Models/Model_CRvsNE.h5
 model_path = '/home/usuario/Documentos/GBM/TCGA/'
-model_file = 'Model_CRvsNE.h5'
+model_file = 'best_model19102021_Eff3Exp7.h5'
 
 model=keras.models.load_model(model_path+model_file)
 
@@ -106,13 +111,13 @@ coord_array=np.array(CTcoord)
 prediction_list=[]
 
 # WSI = Image.open(path + filename)
-#WSI = Image.fromarray(block, 'RGB')
-#%%
+block = wsi.read_block()
+WSI = Image.fromarray(block, 'RGB')
 
 from tqdm import tqdm
 
 for i in tqdm(range(np.shape(coord_array)[0])):
-#for i in range(200,2000):
+# for i in range(251,252):
     
     top=coord_array[i,0]
     left=coord_array[i,1]
@@ -121,8 +126,9 @@ for i in tqdm(range(np.shape(coord_array)[0])):
     
     # im1 = im.crop((left, top, right, bottom))
     WSIpatch=WSI.crop((left,top,left+patchsize,top+patchsize))
+    # WSIpatch=WSIpatch.resize((112,112)) # Resizing image
     WSI_patch_array=np.array(WSIpatch)
-    WSI_patch_array_norm = WSI_patch_array/255 
+    WSI_patch_array_norm = WSI_patch_array/255
     
     # Expand 
     WSI_patch_array_norm=np.expand_dims(WSI_patch_array_norm, axis=0)
@@ -130,6 +136,12 @@ for i in tqdm(range(np.shape(coord_array)[0])):
     
     prediction_list.append(np.argmax(predict_value))
 
+#%%
+# ResizedMask = cv.resize(WSIpatch,(112,112),interpolation = cv.INTER_AREA)
+
+
+# ResizedMask = cv.resize(WSIpatch,(112,112))
+# 
 
 #%%
 pred_mask_pix=np.zeros((np.shape(CTr_pix)))
@@ -143,19 +155,20 @@ for ind in range(np.shape(coordpix)[0]):
 #    print(ind)
     rowx,colx = coordpix[ind]        
     pred_mask_pix[rowx,colx]=prediction_list[ind]+1
-
-#%%
+    
 plt.imshow(pred_mask_pix)
 
 #%%
 
 # Convierte la máscara de pixeles en una de tamaño original
 patchsize=224//scale
-
 pp1=pixtomask(pred_mask_pix,CTr,patchsize)
-pp2=pixtomask(grtr_mask_pix,CTr,patchsize)
+# pp2=pixtomask(grtr_mask_pix,CTr,patchsize)
 
-zz=np.int16(pp1>0.5)
+# zz=np.int16(pp1>0.5)
+#%%
+
+scaled_WSI = WSI.resize((math.floor(width), math.floor(height)))
 
 #%%
 
@@ -165,21 +178,38 @@ import PIL
 
 im2=np.int16(pred_mask_pix*255/2)
 
-ResizedMask = cv.resize(im2,(np.shape(scaled_WSI)[1],np.shape(scaled_WSI)[0]),
+ResizedMask = cv.resize(im2,(np.shape(scaled_WSI)[0],np.shape(scaled_WSI)[1]),
                        interpolation = cv.INTER_AREA)
 
-filename3="C:/Users/Andres/Downloads/prediction_mask_kkk.png"
+filename3='/home/usuario/Documentos/GBM/TCGA/' + wsi_name +'_predmask.png'
 cv.imwrite(filename3, ResizedMask)
 
 
+# imin = np.int16(pred_mask_pix==2)
 
+#%%
+
+# def smoothmask(imin):
+
+#     for zz in range(1):
+        
+#         ResizedMask = cv.resize(imin,(np.shape(pred_mask_pix)[1]*2,np.shape(pred_mask_pix)[0]*2),
+#                            interpolation = cv.INTER_AREA)
+#         BlurredMask = cv.GaussianBlur(ResizedMask, (5,5),8*zz)
+#         ModifiedMask = np.uint16(BlurredMask>0.5)
+        
+#         imin = ModifiedMask 
+    
+#     return imin
+
+# plt.imshow(imin)
 
 #%%
 
 def smoothmask(imin):
     
     ResizedMask = cv.resize(imin,(np.shape(pred_mask_pix)[1]*4,np.shape(pred_mask_pix)[0]*4),
-                       interpolation = cv.INTER_AREA)
+                        interpolation = cv.INTER_AREA)
     BlurredMask = cv.GaussianBlur(ResizedMask, (5,5),8)
     ModifiedMask = np.uint16(BlurredMask>0.5)
     return ModifiedMask
@@ -192,7 +222,11 @@ smoothM=np.zeros((np.shape(imA)[0],np.shape(imA)[1]))
 smoothM[imA==1]=1
 smoothM[imB==1]=2
 
-ResizedMask = cv.resize(smoothM,(np.shape(scaled_WSI)[1],np.shape(scaled_WSI)[0]),
+plt.imshow(smoothM)
+
+#%%
+
+ResizedMask = cv.resize(smoothM,(np.shape(scaled_WSI)[0],np.shape(scaled_WSI)[1]),
                        interpolation = cv.INTER_AREA)
 
 ResizedMask = np.round(ResizedMask)
@@ -200,107 +234,8 @@ ResizedMask = np.round(ResizedMask)
 plt.imshow(ResizedMask,cmap='gray')
 plt.axis('off')
 
-#%%
-
-import cv2 as cv
-from PIL import Image 
-import PIL 
 
 im2=np.int16(ResizedMask*255/2)
 
-filename3="C:/Users/Andres/Downloads/prediction_mask_bbb.jpg"
+filename3='/home/usuario/Documentos/GBM/TCGA/' + wsi_name +'_smoothpredmask.png'
 cv.imwrite(filename3, im2)
-
-#%%
-# #%%
-# im3 = Image.fromarray(im2, 'RGB')
-
-# #%%
-# im1 = im3.save("/home/usuario/Descargas/geeks.jpg")
-
-#jj=np.int16(pp1==1)
-
-#ResizedMask = cv.resize(jj,(np.shape(pred_mask_pix)[1]*4,np.shape(pred_mask_pix)[0]*4),
-#                       interpolation = cv.INTER_AREA)
-
-#plt.imshow(ResizedMask)
-
-#%%
-# ResizedMask = cv.resize(pp1,(np.shape(pp1)[1]//64,np.shape(pp1)[0]//64),
-#                        interpolation = cv.INTER_AREA)
-
-# kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (9,9))
-# result = cv.morphologyEx(ResizedMask, cv.MORPH_CLOSE, kernel)
-
-# plt.imshow(result)
-
-
-
-
-#%%
-
-# dilated = cv.open(pp1, 
-#                      cv.getStructuringElement(cv.MORPH_ELLIPSE, (3, 3)), 
-#                      iterations=2)
-
-
-#%%
-
-
-
-
-
-# plt.imshow(BlurredMask)
-
-# imgoutput2=np.int16(imgoutput>0.5)
-
-# ll=np.zeros((np.shape(pp1)[0]//4,np.shape(pp1)[1]//4,3))
-
-# ll[:,:,0]=imgoutput2
-# ll[:,:,1]=imgoutput2
-# ll[:,:,2]=imgoutput2
-
-#%%
-
-# for i in range (0,10):
-
-#     ll = cv.GaussianBlur(ll, (5,5), 10)
-
-# plt.imshow(ll)
-
-
-
-
-
-
-#a=0
-# #%%
-
-# resized=np.int16(resized)
-# ll=np.zeros((9024//8,7520//8))
-# ll[resized==1]=1
-
-# ll1=np.zeros((9024//8,7520//8,3))
-# ll1[:,:,0]=0
-# ll1[:,:,1]=ll*255
-# ll1[:,:,2]=0
-
-
-# #%%
-
-# added_image = cv.addWeighted(ll1,1,wsiscal/255,0.6,0)
-# plt.imshow(added_image)
-# plt.axis('off')
-
-# #%%
-# from skimage import io, color
-
-# overlapimg=color.label2rgb(resized,wsiscal[:,:,:]/255,
-#                           colors=[(0,0,0),(0,1,0)],
-#                           alpha=0.4, bg_label=0, bg_color=None)
-
-# plt.imshow(overlapimg)
-
-
-
-
