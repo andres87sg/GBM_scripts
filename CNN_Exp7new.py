@@ -12,8 +12,6 @@ import tensorflow as tf
 import tensorflow.keras as keras
 import math
 import albumentations as A
-import pandas as pd
-import os
 
 from keras.preprocessing.image import ImageDataGenerator
 from keras import Sequential,datasets, layers, models
@@ -35,11 +33,10 @@ keras.__version__
 
 #%%
 
-
 def transform(image):
     transform = A.Compose([
         A.ToFloat(max_value = 255,always_apply=True,p=1.0),
-        A.Resize(112, 112, interpolation=1, always_apply=True, p=1),
+        #A.Resize(112, 112, interpolation=1, always_apply=True, p=1),
         #A.RGBShift(always_apply=False, p=0.2, r_shift_limit=(-0.1, 0.1), g_shift_limit=(-0.1, 0.1), b_shift_limit=(-0.1, 0.1)),   
         A.RandomContrast(always_apply=False, p=0.3, limit=(-0.3, 0.3)),
         #A.HueSaturationValue(always_apply=False, p=0.5, hue_shift_limit=(-0.3,0.3), sat_shift_limit=(-0.3, 0.3), val_shift_limit=(-0.3, 0.3)),
@@ -54,55 +51,57 @@ def transform(image):
     ])
     return transform(image=image)['image']
 
-# class albumentations.augmentations.geometric.resize.Resize (height, width, interpolation=1, always_apply=False, p=1)
+#%%
 
+train_path = '/home/usuario/Descargas/destino 20/'
+validation_path = '/home/usuario/Descargas/destino 20/'
+test_path = '/home/usuario/Descargas/destino 20/'
+
+modelpath = '/home/usuario/Documentos/GBM/TCGA/'
+modelname = 'best_model22102021_ResNet50Exp8.h5'
 
 #%%
 
-train_path = '/home/usuario/Documentos/GBM/Samples/SomeSamples/trainX/'
-validation_path = '/home/usuario/Documentos/GBM/Samples/SomeSamples/valX/'
-test_path = '/home/usuario/Documentos/GBM/Samples/SomeSamples/testX/'
-
-batch_size = 4
-imwidth,imheight = (112,112)
-target_size = imwidth,imheight 
+batch_size = 64
+imwidth,imheight = (224,224)
+#target_size = imwidth,imheight 
 class_mode = 'categorical'
 classes = ['NE','CT']
 
-TrainDatagen = ImageDataGenerator(preprocessing_function=transform)
-ValDatagen = ImageDataGenerator(rescale=1./255)
+TrainDatagen = ImageDataGenerator(preprocessing_function=transform,
+                                  validation_split=0.3)
+ValDatagen = ImageDataGenerator(rescale=1./255,
+                                validation_split=0.3)
 TestDatagen = ImageDataGenerator(rescale=1./255)
 
 TrainingData = TrainDatagen.flow_from_directory(train_path,
-                                                  target_size=target_size, 
+                                                  target_size=(imwidth,imheight), 
                                                   classes=classes,
                                                   batch_size=batch_size,
                                                   shuffle=True,
                                                   seed=1,
+                                                  subset='training',
                                                   class_mode=class_mode)
 
 ValidationData = ValDatagen.flow_from_directory(validation_path,
-                                                    target_size=target_size,
+                                                    target_size=(imwidth,imheight),
                                                     classes=classes,
                                                     batch_size=batch_size,
                                                     shuffle=False,
+                                                    subset='validation',
                                                     class_mode='categorical')
 
 TestData = ValDatagen.flow_from_directory(test_path,
-                                            target_size=target_size, 
+                                            target_size=(imwidth,imheight), 
                                             classes=classes,
                                             batch_size=batch_size,
                                             shuffle=False,
                                             class_mode='categorical')
 
-TrainSteps = TrainingData.samples // batch_size
-ValidSteps = ValidationData.samples // batch_size
-TestSteps  = TestData.samples // batch_size
-
 #%% Define model ####
 
 model = Sequential()
-
+"""
 model.add(tf.keras.applications.EfficientNetB0(
           include_top=True,
           weights=None,
@@ -111,57 +110,88 @@ model.add(tf.keras.applications.EfficientNetB0(
           pooling=None,
           classes=2,
           classifier_activation="softmax"))
+"""
+
+model.add(tf.keras.applications.ResNet50(include_top=True,
+                                         weights=None,
+                                         input_tensor=None,
+                                         input_shape=(224, 224, 3),
+                                         pooling=None,
+                                         classes=2,))
     
 model.summary()
+
+#%%
+
+modelpath = '/home/usuario/Documentos/GBM/TCGA/'
+modelname = 'best_model22102021_ResNet50Exp8.h5'
+
+model.load_weights= modelpath + modelname
+
+#%% 
+
+model2 = model.layers[0]
+
+#%%
+
+for i in range(0,170):
+    model2.layers[i].trainable=False
+
+#%%
+model.summary()
+model2.summary()
+
+
+#%%
+
+modelpathTL = '/home/usuario/Documentos/GBM/TCGA/'
+modelnameTL = 'TL_best_model22102021_ResNet50Exp8.h5'
 
 #%% Compile model
 
 def step_decay(epoch):
-	initial_lrate = 1e-4
+	initial_lrate = 1e-5
 	drop = 0.1
-	epochs_drop = 15
+	epochs_drop = 10
 	lrate = initial_lrate * math.pow(drop, math.floor((1+epoch)/epochs_drop))
 	return lrate
 
-optimizer = Adam(1e-4) # 1e-5
-model.compile(optimizer=optimizer, loss = 'categorical_crossentropy', metrics=['accuracy'])
 
-modelpath = '/home/usuario/Documentos/GBM/'
-modelname = 'ResNet50_ChH_06042022.h5'
-
+model2.compile(optimizer=Adam(1e-5), 
+              loss = 'categorical_crossentropy',
+              metrics=['accuracy'])
 
 lr = LearningRateScheduler(step_decay)
 
-es = EarlyStopping(patience=10,
-                   mode='min', 
-                   verbose=1)
+es = EarlyStopping(patience = 10,
+                   mode = 'min', 
+                   verbose = 1)
 
-mc = ModelCheckpoint(filepath = modelpath + modelname, 
-                     monitor='val_loss', 
-                     verbose=1, 
-                     save_best_only=True, 
-                     mode='min', 
-                     save_freq='epoch')
+mc = ModelCheckpoint(filepath = modelpathTL + modelnameTL, 
+                     monitor = 'val_loss', 
+                     verbose = 1, 
+                     save_best_only = True, 
+                     mode = 'min', 
+                     save_freq = 'epoch')
 
 #%% Training and Validation #########
 
 epochs = 100
 
-history = model.fit(TrainingData,
+TrainSteps = TrainingData.samples // batch_size
+ValidSteps = ValidationData.samples // batch_size
+TestSteps  = TestData.samples // batch_size
+
+history = model2.fit(TrainingData,
                     steps_per_epoch  = TrainSteps,
                     validation_data  = ValidationData,
                     validation_steps = ValidSteps,
                     epochs = epochs,
-                    verbose = 2,
-                    use_multiprocessing = True,
+                    verbose = 1,
                     callbacks = [es,mc,lr])
 
-# Save last model
-#checkpoint_final_path = dir2 + 'best_model_lastXX' + Exp + '.h5'
-#model.save(checkpoint_final_path) 
-
 #%%
-
+                                   
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
