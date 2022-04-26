@@ -10,6 +10,8 @@ Created on Thu Nov 12 19:30:36 2020
 import math
 import cv2 as cv
 import numpy as np
+
+
 from matplotlib import pyplot as plt
 from PIL import Image
 Image.MAX_IMAGE_PIXELS = None
@@ -22,14 +24,12 @@ import cv2 as cv
 import matplotlib.pyplot as plt
 #%%
 
-
-wsi_name = 'TCGA-08-051'
+wsi_name = 'TCGA-02-0336'
 wsi_path = '/home/usuario/Documentos/GBM/TCGA/'
 mask_filename = wsi_name + '_mask.png'
 wsi_filename = wsi_name + '.svs'
 
 slide = slideio.open_slide(wsi_path + wsi_filename,"SVS")
-
 
 #%%
 wsi = slide.get_scene(0)
@@ -41,30 +41,15 @@ mask = cv.imread(wsi_path + mask_filename)
 
 #%%
 
-scale=2
-
-scaled_WSI_SG = scaled_wsi(wsi_path,mask_filename,scale)//255
-
-# WSI = Image.fromarray(block, 'RGB')
-
-(width, height) = (WSIwidth // scale, WSIheight // scale)
-
-# Scaled WSI and Image Segmentation
-# scaled_WSI = WSI.resize((math.floor(width), math.floor(height)))
-
-# scaled_WSI_array = np.array(scaled_WSI)
-
-
-#%%
-
 th=0.5
-
 patchsize = 224
 scale = 2
 
+scaled_WSI_SG = scaled_wsi(wsi_path,mask_filename,scale)//255
+
+(width, height) = (WSIwidth // scale, WSIheight // scale)
+
 scaledpatchsize=patchsize//scale
-
-
 
 CTr=np.uint16(scaled_WSI_SG==1)
 
@@ -90,43 +75,10 @@ import tensorflow as tf
 
 from skimage.color import rgb2hed, hed2rgb
 
-#%%
-
-
-
-#keras.models.load_model('')
-#dir='C:/Users/Andres/Desktop/GBM_Project/Experiments/CNN_Models/Model_CRvsNE.h5
 model_path = '/home/usuario/Documentos/GBM/TCGA/'
-# model_file = 'best_model22102021_ResNet50Exp8.h5'
 model_file = 'TL_best_model22102021_ResNet50Exp8.h5'
 
-#best_model22102021_ResNet50Exp8
-#best_model22102021_Eff7Exp7
-#EffNetB0_02042022
-
 model=keras.models.load_model(model_path+model_file)
-
-#model.load_weights(model_path+model_file)
-
-#%%
-
-# def ColorDeconv(im1):
-
-#     ch=2
-#     # im1 = Image.open(path + filename)
-#     ihc = rgb2hed(im1)
-#     imH = (ihc[:,:,ch]-np.min(ihc[:,:,ch]))/(np.max(ihc[:,:,ch])-np.min(ihc[:,:,ch]))
-#     NewImg=np.zeros((224,224,3))
-#     for i in range(3):
-#         NewImg[:,:,i]=imH
-    
-#     # plt.figure()
-#     # plt.imshow(NewImg)
-    
-#     # kk = imH*255
-#     NewImg2 = Image.fromarray(np.uint8(NewImg*255))
-#     return NewImg2
-
 
 #%%
 coord_array=np.array(CTcoord)
@@ -187,8 +139,7 @@ for ind in range(np.shape(coordpix)[0]):
     
 plt.imshow(pred_mask_pix)
 
-#%%
-scale = 2
+scale = 8
 # Convierte la máscara de pixeles en una de tamaño original
 patchsize=224//scale
 pp1=pixtomask(pred_mask_pix,CTr,patchsize)
@@ -210,7 +161,7 @@ im2=np.int16(pred_mask_pix*255/2)
 ResizedMask = cv.resize(im2,(np.shape(scaled_WSI)[0],np.shape(scaled_WSI)[1]),
                        interpolation = cv.INTER_AREA)
 
-filename3='/home/usuario/Documentos/GBM/TCGA/' + wsi_name +'_TFLpredmask.png'
+filename3='/home/usuario/Documentos/GBM/TCGA/' + wsi_name +'_TLpredmask.png'
 cv.imwrite(filename3, ResizedMask)
 
 
