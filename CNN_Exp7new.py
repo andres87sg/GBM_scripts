@@ -3,6 +3,9 @@
 Created on Sun Jul 19 19:03:40 2020
 Modified on Fri Apr 01 11:19:00 2022
 @author: Andres
+
+Training TCGA dataset
+
 """
 
 Exp = 'Exp7'
