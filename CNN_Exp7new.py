@@ -65,7 +65,7 @@ modelname = 'best_model22102021_ResNet50Exp8.h5'
 
 #%%
 
-batch_size = 64
+batch_size = 32
 imwidth,imheight = (224,224)
 #target_size = imwidth,imheight 
 class_mode = 'categorical'
@@ -133,18 +133,28 @@ model.load_weights= modelpath + modelname
 
 #%% 
 
-model2 = model.layers[0]
+model3 = models.clone_model(model)
+model2 = models.clone_model(model)
 
+model3 = model3.layers[0]
+model2 = model2.layers[0]
 #%%
 
-for i in range(0,170):
-    model2.layers[i].trainable=False
-
-#%%
-model.summary()
-model2.summary()
-
-
+# for i in range(0,170):
+# for i in range(0,len(model2.layers)-2):
+#     model2.layers[i].trainable=False
+    
+def unfreezemodel(model,n):
+    model3 = models.clone_model(model)
+    num_layers = len(model3.layers)-1-len(model3.layers)//4*n
+    
+    for i in range(0,num_layers):
+        model3.layers[i].trainable=False
+        # model3 = models.clone_model(model)
+    print('*********')
+    print(num_layers)
+    print('*********')
+    return model3
 #%%
 
 modelpathTL = '/home/usuario/Documentos/GBM/TCGA/'
@@ -160,7 +170,7 @@ def step_decay(epoch):
 	return lrate
 
 
-model2.compile(optimizer=Adam(1e-5), 
+model3.compile(optimizer=Adam(1e-5), 
               loss = 'categorical_crossentropy',
               metrics=['accuracy'])
 
@@ -179,19 +189,48 @@ mc = ModelCheckpoint(filepath = modelpathTL + modelnameTL,
 
 #%% Training and Validation #########
 
-epochs = 100
+epochs = 50
 
 TrainSteps = TrainingData.samples // batch_size
 ValidSteps = ValidationData.samples // batch_size
 TestSteps  = TestData.samples // batch_size
 
-history = model2.fit(TrainingData,
-                    steps_per_epoch  = TrainSteps,
-                    validation_data  = ValidationData,
-                    validation_steps = ValidSteps,
-                    epochs = epochs,
-                    verbose = 1,
-                    callbacks = [es,mc,lr])
+modelpathTL = '/home/usuario/Documentos/GBM/TCGA/'
+modelnameTL = 'best_model22102021_ResNet50Exp8.h5'
+
+for ind in range(0,5):
+
+    model3 = models.clone_model(model2)
+    
+    model3.load_weights= modelpathTL + modelnameTL
+    
+    model3 = unfreezemodel(model3,ind)
+    
+    model3.summary()
+    
+        
+    model3.compile(optimizer=Adam(1e-5), 
+                  loss = 'categorical_crossentropy',
+                  metrics=['accuracy'])
+        
+    history = model3.fit(TrainingData,
+                        steps_per_epoch  = TrainSteps,
+                        validation_data  = ValidationData,
+                        validation_steps = ValidSteps,
+                        epochs = epochs,
+                        verbose = 1,
+                        callbacks = [es,mc]
+                        # callbacks = [es,mc,lr]                    
+                        )
+    
+    modelpathTL = '/home/usuario/Documentos/GBM/TCGA/'
+    modelnameTL = 'TL_best_model22102021_ResNet50Exp8.h5'
+    
+print('Fin del entrenamiento')
+
+
+
+    
 
 #%%
                                    
