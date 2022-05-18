@@ -1,18 +1,25 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu Nov 12 19:30:36 2020
+Modified: 1 May 2022
 
 @author: Andres
 """
-#%%
+#%% Import Libraries 
 
-#import PIL
 import math
 import cv2 as cv
 import numpy as np
 
+import tensorflow.keras as keras
+import tensorflow as tf
+
+from skimage.color import rgb2hed, hed2rgb
+from tqdm import tqdm
+
 
 from matplotlib import pyplot as plt
+import PIL 
 from PIL import Image
 Image.MAX_IMAGE_PIXELS = None
 
@@ -22,169 +29,116 @@ from ClassifierUtils import pixtomask
 import slideio
 import cv2 as cv
 import matplotlib.pyplot as plt
-#%%
 
-wsi_name = 'TCGA-02-0336'
+#%% 
+
+wsi_name = 'TCGA-08-051'
 wsi_path = '/home/usuario/Documentos/GBM/TCGA/'
-mask_filename = wsi_name + '_mask.png'
+mask_filename = wsi_name + '_mask.png' # Mask provided by HistoQC
 wsi_filename = wsi_name + '.svs'
 
 slide = slideio.open_slide(wsi_path + wsi_filename,"SVS")
 
-#%%
 wsi = slide.get_scene(0)
 magnification = wsi.magnification
 WSIheight,WSIwidth =wsi.size
-# block = wsi.read_block()
+
+# ROI Mask
 mask = cv.imread(wsi_path + mask_filename)
 
+th=0.5              # Tissue percentage
+patchsize = 224     # Patch Size
+scale = 2           # Downsampling factor
 
-#%%
+# Scaled image
+scaledROImask = scaled_wsi(wsi_path,mask_filename,scale)//255
 
-th=0.5
-patchsize = 224
-scale = 2
 
-scaled_WSI_SG = scaled_wsi(wsi_path,mask_filename,scale)//255
-
+# Scaled patch size
 (width, height) = (WSIwidth // scale, WSIheight // scale)
-
 scaledpatchsize=patchsize//scale
 
-CTr=np.uint16(scaled_WSI_SG==1)
 
-(imheigth,imwidth)=np.shape(CTr)
+# ROImask: Create patch-wise mask, 
+# pixcoord: Samples coordinates, 
+# imcoord: Original Images coordinates
+[ROImask_pix,pixcoord,wsicoord]=grtrpixelmask(scaledROImask,
+                                               scaledpatchsize,
+                                               scale,
+                                               th=th)
 
-grtr_mask=np.zeros((imheigth,imwidth))
-
-[CTr_pix,CTcoordpix,CTcoord]=grtrpixelmask(CTr,
-                                            scaledpatchsize,
-                                            scale,
-                                            th=th)
-
-grtr_mask_pix = CTr_pix
-
-plt.imshow(grtr_mask_pix,cmap='gray')
-
-# plt.imshow(NEr_pix)
+plt.imshow(ROImask_pix,cmap='gray')
 
 #%% Prediction
-#a
-import tensorflow.keras as keras
-import tensorflow as tf
-
-from skimage.color import rgb2hed, hed2rgb
 
 model_path = '/home/usuario/Documentos/GBM/TCGA/'
 model_file = 'TL_best_model22102021_ResNet50Exp8.h5'
 
 model=keras.models.load_model(model_path+model_file)
 
-#%%
-coord_array=np.array(CTcoord)
+wsicoord=np.array(wsicoord) #convert list to array
 
-prediction_list=[]
-
-patchsize=224
-# WSI = Image.open(path + filename)
-# wsi = slide.get_scene(0)
-# block = wsi.read_block()
 WSI = Image.fromarray(wsi.read_block(), 'RGB')
 
-del wsi
+del wsi # Delete WSI (Reduce RAM usage)
 
+#%% Patch-wise classification
 
-#%%
+prediction_list=[]
+patchsize = 224
 
-from tqdm import tqdm
-
-for i in tqdm(range(np.shape(coord_array)[0])):
-# for i in range(20,22):
+for i in tqdm(range(np.shape(wsicoord)[0])):
     
-    top=coord_array[i,0]
-    left=coord_array[i,1]
+    top=wsicoord[i,0]
+    left=wsicoord[i,1]
     
-    # Extracting patch from original WSI
-    
-    # im1 = im.crop((left, top, right, bottom))
+    # Extracting patch from original WSI (usgin coord)
     WSIpatch=WSI.crop((left,top,left+patchsize,top+patchsize))
-    WSIpatch=WSIpatch.resize((224,224)) # Resizing image
-    # WSI_patch2 = ColorDeconv(WSIpatch)
+    WSIpatch=WSIpatch.resize((patchsize,patchsize)) # Resizing image
     
     WSI_patch_array=np.uint16(np.array(WSIpatch))
-    # WSI_patch_array = PIL.Image.fromarray(np.uint8(WSIpatch))
     
-    
-    # 
+    # Patch Normalization from (0,255) to (0,1)
     WSI_patch_array_norm = WSI_patch_array/255
     
     # Expand 
-    WSI_patch_array_norm2=np.expand_dims(WSI_patch_array_norm, axis=0)
-    # predict_value=model.predict(WSI_patch_array_norm2)
-    predict_value=model.predict(WSI_patch_array_norm2)
+    WSI_patch_array_norm =np.expand_dims(WSI_patch_array_norm, axis=0)
+
+    predict_value=model.predict(WSI_patch_array_norm)
     
     prediction_list.append(np.argmax(predict_value))
 
 
-#%%
-pred_mask_pix=np.zeros((np.shape(CTr_pix)))
+#%% Gray-level predicted mask (Patch-wise)
 
-#coordpix=np.array(NEcoordpix+CTcoordpix)
-coordpix=np.array(CTcoordpix)
+pred_mask_pix=np.zeros((np.shape(ROImask_pix)))
+
+coordpix=np.array(pixcoord)
 
 for ind in range(np.shape(coordpix)[0]):
-#    print(ind)
     rowx,colx = coordpix[ind]        
     pred_mask_pix[rowx,colx]=prediction_list[ind]+1
     
 plt.imshow(pred_mask_pix)
 
-scale = 8
 # Convierte la máscara de pixeles en una de tamaño original
+# Convert patchwise-mask to original size
+scale = 8
 patchsize=224//scale
-pp1=pixtomask(pred_mask_pix,CTr,patchsize)
-# pp2=pixtomask(grtr_mask_pix,CTr,patchsize)
+# pp1=pixtomask(pred_mask_pix,ROImask_pix,patchsize)
 
-# zz=np.int16(pp1>0.5)
-#%%
 
 scaled_WSI = WSI.resize((math.floor(width), math.floor(height)))
 
-#%%
+graylevelmask=np.int16(pred_mask_pix*255/2)
 
-import cv2 as cv
-from PIL import Image 
-import PIL 
-
-im2=np.int16(pred_mask_pix*255/2)
-
-ResizedMask = cv.resize(im2,(np.shape(scaled_WSI)[0],np.shape(scaled_WSI)[1]),
+ResizedMask = cv.resize(graylevelmask,(np.shape(scaled_WSI)[0],np.shape(scaled_WSI)[1]),
                        interpolation = cv.INTER_AREA)
 
-filename3='/home/usuario/Documentos/GBM/TCGA/' + wsi_name +'_TLpredmask.png'
-cv.imwrite(filename3, ResizedMask)
+filename_predmask='/home/usuario/Documentos/GBM/TCGA/' + wsi_name +'_TLpredmask.png'
+cv.imwrite(filename_predmask, ResizedMask)
 
-
-# imin = np.int16(pred_mask_pix==2)
-
-#%%
-
-# def smoothmask(imin):
-
-#     for zz in range(1):
-        
-#         ResizedMask = cv.resize(imin,(np.shape(pred_mask_pix)[1]*2,np.shape(pred_mask_pix)[0]*2),
-#                            interpolation = cv.INTER_AREA)
-#         BlurredMask = cv.GaussianBlur(ResizedMask, (5,5),8*zz)
-#         ModifiedMask = np.uint16(BlurredMask>0.5)
-        
-#         imin = ModifiedMask 
-    
-#     return imin
-
-# plt.imshow(imin)
-
-#%%
+#%% Gray-level predicted mask (Patch-wise)
 
 def smoothmask(imin):
     
@@ -194,17 +148,14 @@ def smoothmask(imin):
     ModifiedMask = np.uint16(BlurredMask>0.5)
     return ModifiedMask
     
-imA=smoothmask(np.int16(pred_mask_pix==1))
-imB=smoothmask(np.int16(pred_mask_pix==2))
+ImClassA=smoothmask(np.int16(pred_mask_pix==1))
+ImClassB=smoothmask(np.int16(pred_mask_pix==2))
 
 
-smoothM=np.zeros((np.shape(imA)[0],np.shape(imA)[1]))
-smoothM[imA==1]=1
-smoothM[imB==1]=2
-
+smoothM=np.zeros((np.shape(ImClassA)[0],np.shape(ImClassA)[1]))
+smoothM[ImClassA==1]=1
+smoothM[ImClassB==1]=2
 plt.imshow(smoothM)
-
-#%%
 
 ResizedMask = cv.resize(smoothM,(np.shape(scaled_WSI)[0],np.shape(scaled_WSI)[1]),
                        interpolation = cv.INTER_AREA)
@@ -213,9 +164,8 @@ ResizedMask = np.round(ResizedMask)
 
 plt.imshow(ResizedMask,cmap='gray')
 plt.axis('off')
+ResizedMask2=np.int16(ResizedMask*255/2)
 
-
-im2=np.int16(ResizedMask*255/2)
-
-filename3='/home/usuario/Documentos/GBM/TCGA/' + wsi_name +'_smoothpredmask.png'
-cv.imwrite(filename3, im2)
+# Save Smooth mask
+filename_predsmoothmask='/home/usuario/Documentos/GBM/TCGA/' + wsi_name +'_smoothpredmask.png'
+cv.imwrite(filename_predsmoothmask, ResizedMask2)

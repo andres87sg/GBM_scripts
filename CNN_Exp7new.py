@@ -139,10 +139,6 @@ model2 = models.clone_model(model)
 model3 = model3.layers[0]
 model2 = model2.layers[0]
 #%%
-
-# for i in range(0,170):
-# for i in range(0,len(model2.layers)-2):
-#     model2.layers[i].trainable=False
     
 def unfreezemodel(model,n):
     model3 = models.clone_model(model)
@@ -155,6 +151,8 @@ def unfreezemodel(model,n):
     print(num_layers)
     print('*********')
     return model3
+
+
 #%%
 
 modelpathTL = '/home/usuario/Documentos/GBM/TCGA/'
@@ -228,9 +226,6 @@ for ind in range(0,5):
     
 print('Fin del entrenamiento')
 
-
-
-    
 
 #%%
                                    
