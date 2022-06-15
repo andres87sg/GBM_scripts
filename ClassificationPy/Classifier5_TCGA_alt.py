@@ -32,7 +32,7 @@ import matplotlib.pyplot as plt
 
 #%% 
 
-wsi_name = 'TCGA-32-1978'
+wsi_name = 'TCGA-15-0742'
 wsi_path = '/home/usuario/Documentos/GBM/TCGA/'
 mask_filename = wsi_name + '_mask.png' # Mask provided by HistoQC
 wsi_filename = wsi_name + '.svs'
@@ -74,8 +74,6 @@ plt.imshow(ROImask_pix,cmap='gray')
 model_path = '/home/usuario/Documentos/GBM/TCGA/'
 model_file = 'TL_best_model22102021_ResNet50Exp8.h5'
 
-#CUanto tengo una sola salida
-model_file = 'best_model22102021_ResNet50Exp8.h5'
 #%%
 from tensorflow.keras.layers import Input
 from keras.utils.vis_utils import plot_model
@@ -87,7 +85,7 @@ from keras.callbacks import EarlyStopping, ModelCheckpoint, LearningRateSchedule
 from keras.losses import categorical_crossentropy
 from keras.models import Model
 
-
+#%%
 model = Sequential()
 
 model.add(tf.keras.applications.ResNet50(include_top=True,
@@ -108,21 +106,23 @@ numlayers = len (mdl.layers)
 print(numlayers)
 
 SplitModel=Model(inputs=mdl.inputs,
-                  outputs=mdl.layers[numlayers-2].output,
-                  name='ResNet50')
+                 outputs=mdl.layers[numlayers-2].output,
+                 name='ResNet50')
 
 output1 = Dense(2,activation='softmax',name='OldOut')(SplitModel.output)
 output2 = Dense(2,activation='softmax',name='NewOut')(SplitModel.output)
 
-model = Model(SplitModel.inputs,outputs=[output1,output2])
+model3 = Model(SplitModel.inputs,outputs=[output1,output2])
 
-# model = tf.keras.models.load_model(modelpath+modelname)
+model3.layers[176].get_weights()
+
+# model3.layers[176].set_weights(mdl.layers[176].get_weights())
+
 #%%
 
-# Cuando quiero que el modelo tenga una sola salida
-model=keras.models.load_model(model_path+model_file)
- 
-# model.load_weights(model_path + model_file)
+# model=keras.models.load_model(model_path+model_file)
+# 
+model.load_weights= model_path + model_file
 
 wsicoord=np.array(wsicoord) #convert list to array
 
@@ -135,11 +135,9 @@ del wsi # Delete WSI (Reduce RAM usage)
 #%% Patch-wise classification
 
 prediction_list=[]
-prediction_list2=[]
 patchsize = 224
 
 for i in tqdm(range(np.shape(wsicoord)[0])):
-# for i in tqdm(range(1,10)):
     
     top=wsicoord[i,0]
     left=wsicoord[i,1]
@@ -157,18 +155,15 @@ for i in tqdm(range(np.shape(wsicoord)[0])):
     WSI_patch_array_norm =np.expand_dims(WSI_patch_array_norm, axis=0)
 
     predict_value=model.predict(WSI_patch_array_norm)
+    # predict_value2 = predict_value[0][0]
+    # predict_value3 = predict_value2[1]
     
-    # Cuando el modelo tiene dos salidas
-    # predict_value2 = predict_value[0][0][1] #old out
-    # predict_value3 = predict_value[1][0][1] #new out
+    predict_value2 = predict_value[1]
+    predict_value3 = predict_value2[0][0] 
+    
     
     # prediction_list.append(np.argmax(predict_value3))
-    # prediction_list.append(int(np.round(predict_value2)))
-    # prediction_list2.append(int(np.round(predict_value3)))
-    
-    # Cuando el modelo tiene una sola salida
-    predict_value3 = predict_value[0][1]
-    prediction_list2.append(int(np.round(predict_value3)))
+    prediction_list.append(int(np.round(predict_value3)))
 
 #%% Gray-level predicted mask (Patch-wise)
 
@@ -178,11 +173,9 @@ coordpix=np.array(pixcoord)
 
 for ind in range(np.shape(coordpix)[0]):
     rowx,colx = coordpix[ind]        
-    pred_mask_pix[rowx,colx]=prediction_list2[ind]+1
+    pred_mask_pix[rowx,colx]=prediction_list[ind]+1
     
-plt.imshow(pred_mask_pix,cmap='gray')
-plt.axis('off')
-
+plt.imshow(pred_mask_pix)
 
 # Convierte la máscara de pixeles en una de tamaño original
 # Convert patchwise-mask to original size
@@ -191,15 +184,15 @@ patchsize=224//scale
 # pp1=pixtomask(pred_mask_pix,ROImask_pix,patchsize)
 
 
-# scaled_WSI = WSI.resize((math.floor(width), math.floor(height)))
+scaled_WSI = WSI.resize((math.floor(width), math.floor(height)))
 
-# graylevelmask=np.int16(pred_mask_pix*255/2)
+graylevelmask=np.int16(pred_mask_pix*255/2)
 
-# ResizedMask = cv.resize(graylevelmask,(np.shape(scaled_WSI)[0],np.shape(scaled_WSI)[1]),
-#                        interpolation = cv.INTER_AREA)
+ResizedMask = cv.resize(graylevelmask,(np.shape(scaled_WSI)[0],np.shape(scaled_WSI)[1]),
+                       interpolation = cv.INTER_AREA)
 
-# filename_predmask='/home/usuario/Documentos/GBM/TCGA/' + wsi_name +'_TLpredmask.png'
-# cv.imwrite(filename_predmask, ResizedMask)
+filename_predmask='/home/usuario/Documentos/GBM/TCGA/' + wsi_name +'_TLpredmask.png'
+cv.imwrite(filename_predmask, ResizedMask)
 
 #%% Gray-level predicted mask (Patch-wise)
 
